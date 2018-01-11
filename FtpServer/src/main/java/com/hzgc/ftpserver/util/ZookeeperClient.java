@@ -38,7 +38,7 @@ public class ZookeeperClient {
      * @param connectAddr    ZK地址
      * @param sessionTimeout session失效时间
      */
-    public void createConnection(String connectAddr, int sessionTimeout) {
+    private void createConnection(String connectAddr, int sessionTimeout) {
         zookeeperClose();
         try {
             zooKeeper = new ZooKeeper(connectAddr, sessionTimeout, new Watcher() {
@@ -52,8 +52,6 @@ public class ZookeeperClient {
                         if (Event.EventType.None == eventType) {
                             //如果建立连接成功，则发送信号量，让后续阻塞程序向下执行
                             connectedSemaphore.countDown();
-                            System.out.println("ZK 建立连接");
-                            //LOG.info("ZK 建立连接");
                         }
                     }
                 }
@@ -72,9 +70,9 @@ public class ZookeeperClient {
         this.createConnection(zookeeperAddress, session_timeout);
         try {
             zooKeeper.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            LOG.info("Znode create successfull, path \":" + path + "\"");
+            LOG.info("Creating MQ nodes in zookeeper is successful! path \":" + path + "\"");
         } catch (KeeperException | InterruptedException e) {
-            LOG.error("Znode create failed");
+            LOG.error("Creating MQ nodes in zookeeper is failed!");
             e.printStackTrace();
         } finally {
             zookeeperClose();
@@ -92,6 +90,7 @@ public class ZookeeperClient {
             //"-1"表示忽略版本
             zooKeeper.setData(path, bytes, -1);
         } catch (KeeperException | InterruptedException e) {
+            LOG.error("Failed to modify node data!");
             e.printStackTrace();
         } finally {
             zookeeperClose();
@@ -110,6 +109,7 @@ public class ZookeeperClient {
             Stat stat = zooKeeper.exists(path, watcher);
             bytes = zooKeeper.getData(path,watcher,stat);
         } catch (KeeperException | InterruptedException e) {
+            LOG.error("Failed to get node data!");
             e.printStackTrace();
         }finally {
             zookeeperClose();
@@ -142,7 +142,7 @@ public class ZookeeperClient {
     /**
      * 关闭ZK连接
      */
-    public void zookeeperClose() {
+    private void zookeeperClose() {
         if (this.zooKeeper != null) {
             try {
                 this.zooKeeper.close();
@@ -152,20 +152,4 @@ public class ZookeeperClient {
         }
     }
 
-    public static void main(String[] args) {
-        ZookeeperClient zk = new ZookeeperClient(10000,
-                "172.18.18.103:2181,172.18.18.104:2181,172.18.18.105:2181",
-                "/777",false);
-
-        //zk.create();
-
-        List<String> ipcIdList = new ArrayList<>();
-        ipcIdList.add("aaaa");
-        ipcIdList.add("bbbb");
-        ipcIdList.add("333");
-        zk.setData(null);
-
-        List<String> aa = zk.getData();
-        System.out.println(aa);
-    }
 }

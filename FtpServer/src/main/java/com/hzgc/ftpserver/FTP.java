@@ -25,8 +25,9 @@ public class FTP extends ClusterOverFtp {
      */
     static {
         new LoggerConfig();
-        MQSwitchImpl mqSwitch = new MQSwitchImpl();
-        mqSwitch.create();
+        //TODO 创建MQ数据开关
+        /*MQSwitchImpl mqSwitch = new MQSwitchImpl();
+        mqSwitch.create();*/
     }
 
     @Override

@@ -170,7 +170,8 @@ public class STOR extends AbstractCommand {
                             String ipcID = map.get("ipcID");
                             String timeStamp = map.get("time");
 
-                            List<String> ipcIdList = zookeeperClient.getData();
+                            //TODO 创建MQ数据开关
+                            /*List<String> ipcIdList = zookeeperClient.getData();
                             if (!ipcIdList.isEmpty() && ipcIdList.contains(ipcID)){
                                 //拼装ftpUrl (带主机名的ftpUrl)
                                 String ftpHostNameUrl = FtpUtils.filePath2FtpUrl(fileName);
@@ -178,7 +179,14 @@ public class STOR extends AbstractCommand {
                                 String ftpIpUrl = FtpUtils.getFtpUrl(ftpHostNameUrl);
                                 //发送到rocketMQ
                                 rocketMQProducer.send(ipcID, timeStamp, ftpIpUrl.getBytes());
-                            }
+                            }*/
+
+                            //拼装ftpUrl (带主机名的ftpUrl)
+                            String ftpHostNameUrl = FtpUtils.filePath2FtpUrl(fileName);
+                            //获取ftpUrl (带IP地址的ftpUrl)
+                            String ftpIpUrl = FtpUtils.getFtpUrl(ftpHostNameUrl);
+                            //发送到rocketMQ
+                            rocketMQProducer.send(ipcID, timeStamp, ftpIpUrl.getBytes());
                         }
                     }
                 }

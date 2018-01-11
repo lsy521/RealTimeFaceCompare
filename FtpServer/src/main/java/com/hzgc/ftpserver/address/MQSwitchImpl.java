@@ -1,7 +1,7 @@
 package com.hzgc.ftpserver.address;
 
 import com.hzgc.dubbo.address.MQSwitch;
-import com.hzgc.ftpserver.common.ZookeeperClient;
+import com.hzgc.ftpserver.util.ZookeeperClient;
 import com.hzgc.util.common.FileUtil;
 import org.apache.log4j.Logger;
 

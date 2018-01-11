@@ -1,4 +1,4 @@
-package com.hzgc.ftpserver.common;
+package com.hzgc.ftpserver.util;
 
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.*;

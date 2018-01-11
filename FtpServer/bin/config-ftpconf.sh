@@ -109,20 +109,8 @@ function config_rkmq()
     ROCKET_NAMESERVER=`sed '/rocketmq_nameserver/!d;s/.*=//' ${CONF_FILE} | tr -d '\r'`
     # 替换ftpAddress.properties中FTP安装节点IP值：key=value（替换key字段的值value）
     sed -i "s#^address=.*#address=${ROCKET_NAMESERVER}:9876#g" ${CONF_FTP_DIR}/rocketmq.properties
-
-    # 根据字段zookeeper_installnode，查找配置文件中，Zk的安装节点所在IP端口号的值，这些值以分号分割
-    ZK_IP=$(grep zookeeper_installnode ${CONF_FILE}|cut -d '=' -f2)
-    # 将这些分号分割的ip用放入数组
-    zk_arr=(${ZK_IP//;/ })
-    zkpro=''
-    for zk_ip in ${zk_arr[@]}
-    do
-        zkpro="$zkpro$zk_ip:2181,"
-    done
-    zkpro=${zkpro%?}
-
-    sed -i "s#^zookeeperAddress=.*#zookeeperAddress=${zkpro}#g" ${CONF_FTP_DIR}/rocketmq.properties
-    echo "rocketmq.properties配置完毕......"  | tee  -a  $LOG_FILE
+    
+    echo "配置完毕......"  | tee  -a  $LOG_FILE
 }
 
 #####################################################################

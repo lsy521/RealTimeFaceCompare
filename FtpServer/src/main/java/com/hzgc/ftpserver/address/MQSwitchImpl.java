@@ -21,8 +21,6 @@ public class MQSwitchImpl implements MQSwitch{
     //注册在path上的Watcher,节点变更会通知会向客户端发起通知
     private static boolean watcher = false;
 
-    private static ZookeeperClient zookeeperClient = new ZookeeperClient(session_timeout,zookeeperAddress,path,watcher);
-
     static {
         Properties properties = new Properties();
         try {
@@ -33,6 +31,8 @@ public class MQSwitchImpl implements MQSwitch{
             e.printStackTrace();
         }
     }
+
+    private static ZookeeperClient zookeeperClient = new ZookeeperClient(session_timeout,zookeeperAddress,path,watcher);
 
     /**
      * 创建MQ存储节点

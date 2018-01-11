@@ -19,16 +19,15 @@
 
 package com.hzgc.ftpserver.command.impl;
 
-import com.hzgc.ftpserver.producer.FaceObject;
-import com.hzgc.ftpserver.producer.ProducerOverFtp;
+import com.hzgc.ftpserver.address.MQSwitchImpl;
 import com.hzgc.ftpserver.producer.RocketMQProducer;
 import com.hzgc.ftpserver.common.FtpUtil;
+import com.hzgc.ftpserver.common.ZookeeperClient;
 import com.hzgc.ftpserver.queue.BufferQueue;
 import com.hzgc.ftpserver.command.AbstractCommand;
 import com.hzgc.ftpserver.ftplet.*;
 import com.hzgc.ftpserver.impl.*;
 import com.hzgc.ftpserver.util.IoUtils;
-import org.apache.rocketmq.client.producer.SendResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +35,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
@@ -57,6 +57,8 @@ public class STOR extends AbstractCommand {
     private final Logger LOG = LoggerFactory.getLogger(STOR.class);
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    private ZookeeperClient zookeeperClient = MQSwitchImpl.getZookeeperClient();
 
     /**
      * Execute command.
@@ -168,12 +170,15 @@ public class STOR extends AbstractCommand {
                             String ipcID = map.get("ipcID");
                             String timeStamp = map.get("time");
 
-                            //拼装ftpUrl (带主机名的ftpUrl)
-                            String ftpHostNameUrl = FtpUtil.filePath2FtpUrl(fileName);
-                            //获取ftpUrl (带IP地址的ftpUrl)
-                            String ftpIpUrl = FtpUtil.getFtpUrl(ftpHostNameUrl);
-                            //发送到rocketMQ
-                            rocketMQProducer.send(ipcID, timeStamp, ftpIpUrl.getBytes());
+                            List<String> ipcIdList = zookeeperClient.getData();
+                            if (!ipcIdList.isEmpty() && ipcIdList.contains(ipcID)){
+                                //拼装ftpUrl (带主机名的ftpUrl)
+                                String ftpHostNameUrl = FtpUtil.filePath2FtpUrl(fileName);
+                                //获取ftpUrl (带IP地址的ftpUrl)
+                                String ftpIpUrl = FtpUtil.getFtpUrl(ftpHostNameUrl);
+                                //发送到rocketMQ
+                                rocketMQProducer.send(ipcID, timeStamp, ftpIpUrl.getBytes());
+                            }
                         }
                     }
                 }

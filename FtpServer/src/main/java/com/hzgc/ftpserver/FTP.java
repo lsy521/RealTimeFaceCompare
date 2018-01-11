@@ -1,6 +1,8 @@
 package com.hzgc.ftpserver;
 
+import com.hzgc.ftpserver.address.MQSwitchImpl;
 import com.hzgc.ftpserver.common.LoggerConfig;
+import com.hzgc.ftpserver.common.ZookeeperClient;
 import com.hzgc.ftpserver.queue.DataProcess;
 import com.hzgc.util.common.FileUtil;
 import com.hzgc.ftpserver.command.CommandFactoryFactory;
@@ -24,6 +26,8 @@ public class FTP extends ClusterOverFtp {
      */
     static {
         new LoggerConfig();
+        MQSwitchImpl mqSwitch = new MQSwitchImpl();
+        mqSwitch.create();
     }
 
     @Override

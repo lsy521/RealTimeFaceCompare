@@ -8,20 +8,28 @@ public class ZKClientTest {
     public static void main(String[] args) {
         ZookeeperClient zk = MQSwitchImpl.getZookeeperClient();
 
-        zk.create();
+        //zk.create();
 
-        List<String> ipcIdList = new ArrayList<>();
-        ipcIdList.add("aaaa");
-        ipcIdList.add("bbbb");
-        ipcIdList.add("cccc");
         MQSwitchImpl mqSwitch = new MQSwitchImpl();
-        mqSwitch.openMQReception(ipcIdList);
+        List<String> user1 = new ArrayList<>();
+        user1.add("aaaa");
+        user1.add("bbbb");
+        user1.add("cccc");
+        mqSwitch.openMQReception("user1",user1);
+        List<String> data1 = zk.getData();
+        System.out.println("user1 open MQ Reception ---> user1 open, user2 close ：" + data1);
 
-        List<String> aa = zk.getData();
-        System.out.println(aa);
+        List<String> user2 = new ArrayList<>();
+        user2.add("aaaa");
+        user2.add("QWER");
+        user2.add("777");
+        mqSwitch.openMQReception("user2",user2);
+        List<String> data2 = zk.getData();
+        System.out.println("user2 open MQ Reception ---> user1 open, user2 open ：" + data2);
 
-        mqSwitch.closeMQReception();
-        List<String> bb = zk.getData();
-        System.out.println(bb);
+        mqSwitch.closeMQReception("user1");
+        List<String> data3 = zk.getData();
+        System.out.println("user1 close MQ Reception ---> user1 close, user2 open ：" + data3);
+
     }
 }

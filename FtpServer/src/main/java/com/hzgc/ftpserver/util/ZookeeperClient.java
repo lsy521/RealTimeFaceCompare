@@ -64,11 +64,15 @@ public class ZookeeperClient {
     }
 
     /**
-     * 创建ZK节点(数据赋值为null)
+     * 创建ZK节点(这里是创建MQ父目录节点，故赋值为空)
      */
     public void create() {
         this.createConnection(zookeeperAddress, session_timeout);
         try {
+            /*  CreateMode.PERSISTENT	            永久性节点
+                CreateMode.PERSISTENT_SEQUENTIAL	永久性序列节点
+                CreateMode.EPHEMERAL	            临时节点，会话断开或过期时会删除此节点
+                CreateMode.PERSISTENT_SEQUENTIAL	临时序列节点，会话断开或过期时会删除此节点*/
             zooKeeper.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             LOG.info("Creating MQ nodes in zookeeper is successful! path \":" + path + "\"");
         } catch (KeeperException | InterruptedException e) {
@@ -80,11 +84,37 @@ public class ZookeeperClient {
     }
 
     /**
-     * 修改节点数据
-     *
-     * @param bytes 修改数据
+     * 创建ZK节点
      */
-    public void setData(byte[] bytes) {
+    public void create(String path, byte[] bytes) {
+        this.createConnection(zookeeperAddress, session_timeout);
+        try {
+            zooKeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        } catch (KeeperException | InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            zookeeperClose();
+        }
+    }
+
+    /**
+     * 删除ZK节点
+     */
+    public void delete(String path) {
+        this.createConnection(zookeeperAddress, session_timeout);
+        try {
+            zooKeeper.delete(path, -1);
+        } catch (InterruptedException | KeeperException e) {
+            e.printStackTrace();
+        } finally {
+            zookeeperClose();
+        }
+    }
+
+    /**
+     * 更新节点数据
+     */
+    public void setData(String path, byte[] bytes) {
         this.createConnection(zookeeperAddress, session_timeout);
         try {
             //"-1"表示忽略版本
@@ -98,42 +128,65 @@ public class ZookeeperClient {
     }
 
     /**
-     * 获取节点数据
-     *
-     * @return 数据
+     * 获取ZK节点的所有子节点
      */
-    public byte[] getDate(){
+    public List<String> getChildren() {
+        List<String> children = new ArrayList<>();
+        this.createConnection(zookeeperAddress, session_timeout);
+        try {
+            Stat stat = zooKeeper.exists(path, watcher);
+            children = zooKeeper.getChildren(path, watcher, stat);
+            for (String child : children) {
+                System.out.println("这是" + path + "的孩子 ：" + child);
+            }
+        } catch (KeeperException | InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            zookeeperClose();
+        }
+        return children;
+    }
+
+    /**
+     * 获取单个子节点数据
+     */
+    public byte[] getDate(String path) {
         byte[] bytes = null;
         this.createConnection(zookeeperAddress, session_timeout);
         try {
             Stat stat = zooKeeper.exists(path, watcher);
-            bytes = zooKeeper.getData(path,watcher,stat);
+            bytes = zooKeeper.getData(path, watcher, stat);
         } catch (KeeperException | InterruptedException e) {
             LOG.error("Failed to get node data!");
             e.printStackTrace();
-        }finally {
+        } finally {
             zookeeperClose();
         }
         return bytes;
     }
-    
+
     /**
      * 获取MQ存储节点数据
-     *
-     * @return ipcIdList
      */
     public List<String> getData() {
         List<String> ipcIdList = new ArrayList<>();
         this.createConnection(zookeeperAddress, session_timeout);
-        byte[] data = getDate();
-        if (data != null){
-            String ipcIds = new String(data);
-            if (!ipcIds.equals("") && !ipcIds.contains(",")) {
-                ipcIds = ipcIds.substring(0, ipcIds.length() - 1);
-                ipcIdList.add(ipcIds);
-            }else if (!ipcIds.equals("") && ipcIds.contains(",")){
-                ipcIds = ipcIds.substring(0, ipcIds.length() - 1);
-                ipcIdList = Arrays.asList(ipcIds.split(","));
+        List<String> children = getChildren();
+        if (!children.isEmpty()){
+            for (String child : children){
+                String childPath = path + "/" + child;
+                byte[] data = this.getDate(childPath);
+                if (data != null) {
+                    String ipcIds = new String(data);
+                    if (!ipcIds.equals("") && !ipcIds.contains(",")) {
+                        ipcIds = ipcIds.substring(0, ipcIds.length() - 1);
+                        ipcIdList.add(ipcIds);
+                    } else if (!ipcIds.equals("") && ipcIds.contains(",")) {
+                        ipcIds = ipcIds.substring(0, ipcIds.length() - 1);
+                        List<String> childList = Arrays.asList(ipcIds.split(","));
+                        ipcIdList.addAll(childList);
+                    }
+                }
             }
         }
         return ipcIdList;

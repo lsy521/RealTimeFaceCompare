@@ -4,9 +4,7 @@ import org.apache.log4j.Logger;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 public class ZookeeperClient {
@@ -39,7 +37,6 @@ public class ZookeeperClient {
      * @param sessionTimeout session失效时间
      */
     private void createConnection(String connectAddr, int sessionTimeout) {
-        zookeeperClose();
         try {
             zooKeeper = new ZooKeeper(connectAddr, sessionTimeout, new Watcher() {
                 @Override
@@ -168,28 +165,33 @@ public class ZookeeperClient {
     /**
      * 获取MQ存储节点数据
      */
-    public List<String> getData() {
-        List<String> ipcIdList = new ArrayList<>();
+    public Map<String,Map<String, List<String>>> getMQData() {
+        Map<String,Map<String, List<String>>> mqMap = new HashMap<>();
         this.createConnection(zookeeperAddress, session_timeout);
         List<String> children = getChildren();
-        if (!children.isEmpty()){
-            for (String child : children){
+        if (!children.isEmpty()) {
+            for (String child : children) {
+                Map<String, List<String>> map = new HashMap<>();
                 String childPath = path + "/" + child;
-                byte[] data = this.getDate(childPath);
+                byte[] data = getDate(childPath);
                 if (data != null) {
                     String ipcIds = new String(data);
-                    if (!ipcIds.equals("") && !ipcIds.contains(",")) {
+                    if (!ipcIds.equals("") && ipcIds.contains(",") && ipcIds.split(",").length >= 3) {
                         ipcIds = ipcIds.substring(0, ipcIds.length() - 1);
-                        ipcIdList.add(ipcIds);
-                    } else if (!ipcIds.equals("") && ipcIds.contains(",")) {
-                        ipcIds = ipcIds.substring(0, ipcIds.length() - 1);
-                        List<String> childList = Arrays.asList(ipcIds.split(","));
-                        ipcIdList.addAll(childList);
+                        List<String> list = Arrays.asList(ipcIds.split(","));
+                        String userId = list.get(0);
+                        String time = list.get(1);
+                        List<String> ipcIdList = new ArrayList<>();
+                        for (int i = 2; i < list.size(); i++) {
+                            ipcIdList.add(list.get(i));
+                        }
+                        map.put(time, ipcIdList);
+                        mqMap.put(userId,map);
                     }
                 }
             }
         }
-        return ipcIdList;
+        return mqMap;
     }
 
     /**

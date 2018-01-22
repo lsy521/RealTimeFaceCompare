@@ -133,9 +133,6 @@ public class ZookeeperClient {
         try {
             Stat stat = zooKeeper.exists(path, watcher);
             children = zooKeeper.getChildren(path, watcher, stat);
-            for (String child : children) {
-                System.out.println("这是" + path + "的孩子 ：" + child);
-            }
         } catch (KeeperException | InterruptedException e) {
             e.printStackTrace();
         } finally {
@@ -167,7 +164,7 @@ public class ZookeeperClient {
      */
     public Map<String,Map<String, List<String>>> getMQData() {
         Map<String,Map<String, List<String>>> mqMap = new HashMap<>();
-        this.createConnection(zookeeperAddress, session_timeout);
+        //this.createConnection(zookeeperAddress, session_timeout);
         List<String> children = getChildren();
         if (!children.isEmpty()) {
             for (String child : children) {

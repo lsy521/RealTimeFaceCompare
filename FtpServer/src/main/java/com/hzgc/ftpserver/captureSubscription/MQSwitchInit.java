@@ -13,31 +13,29 @@ import java.util.Properties;
  */
 public class MQSwitchInit {
     private static Logger LOG = Logger.getLogger(MQSwitchInit.class);
-    private static int session_timeout = 1000;
-    private static String zookeeperAddress;
-    private static boolean watcher = false;
     protected static String path = "/mq_ipcid";
-    protected static ZookeeperClient zookeeperClient = new ZookeeperClient(session_timeout, zookeeperAddress, path, watcher);
+    protected static ZookeeperClient zookeeperClient;
 
     static {
         Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
-            zookeeperAddress = properties.getProperty("zookeeperAddress");
+            String zookeeperAddress = properties.getProperty("zookeeperAddress");
+            zookeeperClient = new ZookeeperClient(1000, zookeeperAddress, path, false);
         } catch (IOException e) {
             LOG.error("zookeeperAddress no found in the \"rocketmq.properties\"");
             e.printStackTrace();
         }
     }
 
-    public ZookeeperClient getZookeeperClient() {
-        return zookeeperClient;
+    public static String getPath() {
+        return path;
     }
 
     /**
      * 创建MQ存储节点
      */
-    public static void create() {
+    public void create() {
         zookeeperClient.create();
     }
 }

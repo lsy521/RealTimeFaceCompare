@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -13,7 +14,7 @@ import java.util.Properties;
 /**
  * 人脸抓拍订阅定时刷新及去除过期数据
  */
-public class MQSwitchStart extends CaptureSubscriptionObject{
+public class MQSwitchStart extends CaptureSubscriptionObject {
     private static Logger LOG = Logger.getLogger(MQSwitchStart.class);
     private static ZookeeperClient zookeeperClient;
     private static String path = MQSwitchInit.getPath();
@@ -24,11 +25,20 @@ public class MQSwitchStart extends CaptureSubscriptionObject{
         try {
             properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
             String zookeeperAddress = properties.getProperty("zookeeperAddress");
-            zookeeperClient = new ZookeeperClient(30000, zookeeperAddress, path, false);
+            zookeeperClient = new ZookeeperClient(10000, zookeeperAddress, path, false);
+            zookeeperClient.createConnection(zookeeperAddress, 10000);
         } catch (IOException e) {
             LOG.error("zookeeperAddress no found in the \"rocketmq.properties\"");
             e.printStackTrace();
         }
+    }
+
+    private boolean isInDate(String time) {
+        Calendar now = Calendar.getInstance();
+        now.add(Calendar.MONTH, -6);
+        long endTime = now.getTimeInMillis();
+        long startTime = Long.parseLong(time);
+        return startTime <= endTime;
     }
 
     public void start() {
@@ -38,13 +48,12 @@ public class MQSwitchStart extends CaptureSubscriptionObject{
                     captureSubscription = zookeeperClient.getMQData();
                     object.setIpcIdList(captureSubscription);
                     long current = System.currentTimeMillis();
-                    LOG.info("777" + "time:" + current + ", captureSubscription:" + captureSubscription + ", IPCID:" + object.getIpcIdList());
+                    LOG.info("777" + "time:" + current + ", captureSubscription:" + captureSubscription + ", ipcIdList:" + object.getIpcIdList());
                     for (String userId : captureSubscription.keySet()) {
                         Map<String, List<String>> map = captureSubscription.get(userId);
                         for (String time : map.keySet()) {
-                            long failureTime = Long.parseLong(time) + 60 * 60 * 24 * 180;
-                            if (failureTime >= current) {
-                                zookeeperClient.delete(path + "/" + userId);
+                            if (isInDate(time)) {
+                                zookeeperClient.deleteMQ(path + "/" + userId);
                             }
                         }
                     }

@@ -36,7 +36,7 @@ public class ZookeeperClient {
      * @param connectAddr    ZK地址
      * @param sessionTimeout session失效时间
      */
-    private void createConnection(String connectAddr, int sessionTimeout) {
+    public void createConnection(String connectAddr, int sessionTimeout) {
         try {
             zooKeeper = new ZooKeeper(connectAddr, sessionTimeout, new Watcher() {
                 @Override
@@ -160,17 +160,55 @@ public class ZookeeperClient {
     }
 
     /**
+     * 获取MQ节点所有子节点(长期调用，故不自动创建连接，不关闭连接)
+     */
+    private List<String> getMQChildren() {
+        List<String> children = new ArrayList<>();
+        try {
+            children = zooKeeper.getChildren(path, watcher);
+        } catch (KeeperException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return children;
+    }
+
+    /**
+     * 获取单个MQ子节点数据(长期调用，故不自动创建连接，不关闭连接)
+     */
+    private byte[] getMQDate(String path) {
+        byte[] bytes = null;
+        try {
+            Stat stat = zooKeeper.exists(path, watcher);
+            bytes = zooKeeper.getData(path, watcher, stat);
+        } catch (KeeperException | InterruptedException e) {
+            LOG.error("Failed to get node data!");
+            e.printStackTrace();
+        }
+        return bytes;
+    }
+
+    /**
+     * 删除MQ节点
+     */
+    public void deleteMQ(String path) {
+        try {
+            zooKeeper.delete(path, -1);
+        } catch (InterruptedException | KeeperException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 获取MQ存储节点数据
      */
-    public Map<String,Map<String, List<String>>> getMQData() {
-        Map<String,Map<String, List<String>>> mqMap = new HashMap<>();
-        //this.createConnection(zookeeperAddress, session_timeout);
-        List<String> children = getChildren();
+    public Map<String, Map<String, List<String>>> getMQData() {
+        Map<String, Map<String, List<String>>> mqMap = new HashMap<>();
+        List<String> children = getMQChildren();
         if (!children.isEmpty()) {
             for (String child : children) {
                 Map<String, List<String>> map = new HashMap<>();
                 String childPath = path + "/" + child;
-                byte[] data = getDate(childPath);
+                byte[] data = getMQDate(childPath);
                 if (data != null) {
                     String ipcIds = new String(data);
                     if (!ipcIds.equals("") && ipcIds.contains(",") && ipcIds.split(",").length >= 3) {
@@ -183,7 +221,7 @@ public class ZookeeperClient {
                             ipcIdList.add(list.get(i));
                         }
                         map.put(time, ipcIdList);
-                        mqMap.put(userId,map);
+                        mqMap.put(userId, map);
                     }
                 }
             }

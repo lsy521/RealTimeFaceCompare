@@ -18,7 +18,7 @@ public class CaptureSubscriptionObject {
         return ipcIdList;
     }
 
-    public void setIpcIdList(Map<String, Map<String, List<String>>> map) {
+    void setIpcIdList(Map<String, Map<String, List<String>>> map) {
         List<String> ipcIdList = new ArrayList<>();
         if (!map.isEmpty()) {
             for (String userId : map.keySet()) {

@@ -4,8 +4,8 @@
 ## Filename:    start-consumer.sh
 ## Description: to start consumer
 ## Version:     1.0
-## Author:      zhaozhe
-## Created:     2017-08-03
+## Author:      liushanbin
+## Created:     2018-01-08
 ################################################################################
 #set -x  ## 用于调试用，不用的时候可以注释掉
 
@@ -81,7 +81,15 @@ function start_ftpserver()
 function main()
 {
     start_ftpserver
-     nohup sh ${BIN_DIR}/start-check-ftpserver.sh &
+    ##对是否存在守护进程判断
+    check_ftp_pid=$(ps -ef | grep start-check-ftpserver.sh |grep -v grep | awk  '{print $2}' | uniq)
+    if [ -n "${check_ftp_pid}" ];then
+        echo "check_ftpserver is exit,nothing to do " | tee -a $LOG_FILE
+    else
+        echo "check_ftpserver is not exit, just to start check_ftpserver."   | tee -a $LOG_FILE
+        nohup sh ${BIN_DIR}/start-check-ftpserver.sh &
+    fi
+
 }
 
 ## 脚本主要业务入口

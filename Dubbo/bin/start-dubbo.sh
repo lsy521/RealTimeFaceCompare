@@ -94,4 +94,12 @@ echo "successful!"
 PIDS=`ps -f | grep java | grep "$DEPLOY_DIR" | awk '{print $2}'`
 echo "PID: $PIDS"
 echo "STDOUT: $STDOUT_FILE"
-nohup sh ${BIN_DIR}/start-check-dubbo.sh &
+
+check_dubbo_pid=$(ps -ef | grep start-check-dubbo.sh |grep -v grep | awk  '{print $2}' | uniq)
+if [ -n "${check_dubbo_pid}" ];then
+    echo "check_dubbo is exit,nothing to do " | tee -a $STDOUT_FILE
+else
+    echo "check_dubbo is not exit, just to start check_dubbo."   | tee -a $STDOUT_FILE
+    nohup sh ${BIN_DIR}/start-check-dubbo.sh &
+fi
+

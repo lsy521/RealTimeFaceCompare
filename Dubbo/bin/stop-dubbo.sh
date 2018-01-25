@@ -1,11 +1,11 @@
 #!/bin/bash
 ################################################################################
 ## Copyright:   HZGOSUN Tech. Co, BigData
-## Filename:    dubbostop
+## Filename:    stop-dubbo.sh
 ## Description: stop dubbo
 ## Version:     1.0
-## Author:      caodabao
-## Created:     2017-11-16
+## Author:      liushanbin
+## Created:     2018-01-08
 ################################################################################
 
 #set -x
@@ -32,14 +32,13 @@ fi
 if [ ! -d $LOGS_DIR ]; then
     mkdir $LOGS_DIR
 fi
-LOG_FILE=$LOGS_DIR/dubbo.log
-CHECK_LOG_FILE=$LOGS_DIR/check_dubbo.log
+LOG_FILE=$LOGS_DIR/stop_dubbo.log
 source /etc/profile
 stop_dubbo=1                                                      ## 判断dubbo是否关闭成功 1->失败 0->成功 默认失败
 stop_check_dubbo=1
 
 #####################################################################
-# 函数名:stopdubbo 
+# 函数名:stopdubbo
 # 描述: 停止dubbo
 # 参数: N/A
 # 返回值: N/A
@@ -53,7 +52,7 @@ function stopdubbo ()
     dubbo_pid=$(lsof  -i | grep 20881  | awk  '{print $2}' | uniq)
     echo "dubbo's pid is: ${dubbo_pid}"  | tee -a $LOG_FILE
     if [ -n "${dubbo_pid}" ];then
-        echo "dubbo process is exit,exit with 0,kill dubbo now " | tee -a $LOG_FILE  
+        echo "dubbo process is exit,exit with 0,kill dubbo now " | tee -a $LOG_FILE
         kill -9 ${dubbo_pid}
         sleep 5s
         dubbo_pid=$(lsof  -i | grep 20881  | awk  '{print $2}' | uniq)
@@ -64,7 +63,7 @@ function stopdubbo ()
             stop_dubbo=0
             echo "stop dubbo sucessed, just to start dubbo."  | tee -a  $LOG_FILE
         fi
-    else 
+    else
         echo "dubbo process is not exit, just to start dubbo."   | tee -a $LOG_FILE
         stop_dubbo=0
     fi
@@ -78,25 +77,25 @@ function stopdubbo ()
 #####################################################################
 function stop_check_dubbo()
 {
-    echo ""  | tee -a $CHECK_LOG_FILE
-    echo "****************************************************"  | tee -a $CHECK_LOG_FILE
-    echo " start stop check_dubbo ......................." | tee  -a $CHECK_LOG_FILE
+    echo ""  | tee -a $LOG_FILE
+    echo "****************************************************"  | tee -a $LOG_FILE
+    echo " start stop check_dubbo ......................." | tee  -a $LOG_FILE
     check_dubbo_pid=$(ps -ef | grep start-check-dubbo.sh |grep -v grep | awk  '{print $2}' | uniq)
-    echo "check_dubbo's pid is: ${check_dubbo_pid}"  | tee -a $CHECK_LOG_FILE
+    echo "check_dubbo's pid is: ${check_dubbo_pid}"  | tee -a $LOG_FILE
     if [ -n "${check_dubbo_pid}" ];then
-        echo "check_dubbo is exit,exit with 0,kill check_dubbo now " | tee -a $CHECK_LOG_FILE
+        echo "check_dubbo is exit,exit with 0,kill check_dubbo now " | tee -a $LOG_FILE
         kill -9 ${check_dubbo_pid}
         sleep 5s
         check_dubbo_pid_restart=$(ps -ef | grep start-check-dubbo.sh |grep -v grep | awk  '{print $2}' | uniq)
         if [ -n "${check_dubbo_pid_restart}" ];then
             stop_check_dubbo=1
-            echo "stop check_dubbo failure, retry it again."  | tee -a  $CHECK_LOG_FILE
+            echo "stop check_dubbo failure, retry it again."  | tee -a  $LOG_FILE
         else
             stop_check_dubbo=0
-            echo "stop check_dubbo sucessed, just to start check_dubbo."  | tee -a  $CHECK_LOG_FILE
+            echo "stop check_dubbo sucessed, just to start check_dubbo."  | tee -a  $LOG_FILE
         fi
     else
-        echo "check_dubbo is not exit, just to start check_dubbo."   | tee -a $CHECK_LOG_FILE
+        echo "check_dubbo is not exit, just to start check_dubbo."   | tee -a $LOG_FILE
         stop_check_dubbo=0
     fi
 }
@@ -115,17 +114,17 @@ function main()
     else
         stopdubbo
         if [ ${stop_dubbo} -eq 1 ];then
-            echo "retry stop dubbo failed please check the config......exit with 1" | tee -a  $LOG_FILE
+            echo "retry stop dubbo failed ..." | tee -a  $LOG_FILE
         fi
     fi
 
     stop_check_dubbo
     if [ ${stop_check_dubbo} -eq 0 ];then
-        echo "stop check_dubbo sucessed" | tee -a  $CHECK_LOG_FILE
+        echo "stop check_dubbo sucessed" | tee -a  $LOG_FILE
     else
         stop_check_dubbo
         if [ ${stop_check_dubbo} -eq 1 ];then
-            echo "retry stop check_dubbo failed please check the config......exit with 1" | tee -a  $CHECK_LOG_FILE
+            echo "retry stop check_dubbo failed ..." | tee -a  $LOG_FILE
         fi
     fi
 

@@ -1,6 +1,5 @@
 package com.hzgc.ftpserver.captureSubscription;
 
-import com.hzgc.ftpserver.util.ZookeeperClient;
 import com.hzgc.util.common.FileUtil;
 import org.apache.log4j.Logger;
 
@@ -16,8 +15,8 @@ import java.util.Properties;
  */
 public class MQSwitchStart extends CaptureSubscriptionObject {
     private static Logger LOG = Logger.getLogger(MQSwitchStart.class);
-    private static ZookeeperClient zookeeperClient;
-    private static String path = MQSwitchInit.getPath();
+    private static MQSwitchClient mqSwitchClient;
+    private static String path = MQSwitchImplInit.getPath();
     private CaptureSubscriptionObject object = new CaptureSubscriptionObject();
 
     static {
@@ -25,8 +24,8 @@ public class MQSwitchStart extends CaptureSubscriptionObject {
         try {
             properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
             String zookeeperAddress = properties.getProperty("zookeeperAddress");
-            zookeeperClient = new ZookeeperClient(10000, zookeeperAddress, path, false);
-            zookeeperClient.createConnection(zookeeperAddress, 10000);
+            mqSwitchClient = new MQSwitchClient(10000, zookeeperAddress, path, false);
+            mqSwitchClient.createConnection(zookeeperAddress, 10000);
         } catch (IOException e) {
             LOG.error("zookeeperAddress no found in the \"rocketmq.properties\"");
             e.printStackTrace();
@@ -45,7 +44,7 @@ public class MQSwitchStart extends CaptureSubscriptionObject {
         Thread thread = new Thread() {
             public void run() {
                 while (true) {
-                    captureSubscription = zookeeperClient.getMQData();
+                    captureSubscription = mqSwitchClient.getData();
                     object.setIpcIdList(captureSubscription);
                     long current = System.currentTimeMillis();
                     LOG.info("777" + "time:" + current + ", captureSubscription:" + captureSubscription + ", ipcIdList:" + object.getIpcIdList());
@@ -53,7 +52,7 @@ public class MQSwitchStart extends CaptureSubscriptionObject {
                         Map<String, List<String>> map = captureSubscription.get(userId);
                         for (String time : map.keySet()) {
                             if (isInDate(time)) {
-                                zookeeperClient.deleteMQ(path + "/" + userId);
+                                mqSwitchClient.delete(path + "/" + userId);
                             }
                         }
                     }

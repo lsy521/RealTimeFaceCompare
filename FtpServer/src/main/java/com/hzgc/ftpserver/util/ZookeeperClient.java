@@ -14,12 +14,12 @@ public class ZookeeperClient {
     //Zookeeper地址
     private String zookeeperAddress;
     //Zookeeper节点路径
-    private String path;
+    protected String path;
     //注册在path上的Watcher,节点变更会通知会向客户端发起通知
-    private boolean watcher;
+    protected boolean watcher;
 
     //Zookeeper变量
-    private ZooKeeper zooKeeper = null;
+    protected ZooKeeper zooKeeper = null;
     //信号量设置，用于等待zookeeper连接建立之后，通知阻塞程序继续向下执行
     private CountDownLatch connectedSemaphore = new CountDownLatch(1);
 
@@ -66,10 +66,12 @@ public class ZookeeperClient {
     public void create() {
         this.createConnection(zookeeperAddress, session_timeout);
         try {
-            /*  CreateMode.PERSISTENT	            永久性节点
+            /*
+                CreateMode.PERSISTENT	            永久性节点
                 CreateMode.PERSISTENT_SEQUENTIAL	永久性序列节点
                 CreateMode.EPHEMERAL	            临时节点，会话断开或过期时会删除此节点
-                CreateMode.PERSISTENT_SEQUENTIAL	临时序列节点，会话断开或过期时会删除此节点*/
+                CreateMode.EPHEMERAL_SEQUENTIAL	    临时序列节点，会话断开或过期时会删除此节点
+            */
             zooKeeper.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             LOG.info("Creating MQ nodes in zookeeper is successful! path \":" + path + "\"");
         } catch (KeeperException | InterruptedException e) {
@@ -157,76 +159,6 @@ public class ZookeeperClient {
             zookeeperClose();
         }
         return bytes;
-    }
-
-    /**
-     * 获取MQ节点所有子节点(长期调用，故不自动创建连接，不关闭连接)
-     */
-    private List<String> getMQChildren() {
-        List<String> children = new ArrayList<>();
-        try {
-            children = zooKeeper.getChildren(path, watcher);
-        } catch (KeeperException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        return children;
-    }
-
-    /**
-     * 获取单个MQ子节点数据(长期调用，故不自动创建连接，不关闭连接)
-     */
-    private byte[] getMQDate(String path) {
-        byte[] bytes = null;
-        try {
-            Stat stat = zooKeeper.exists(path, watcher);
-            bytes = zooKeeper.getData(path, watcher, stat);
-        } catch (KeeperException | InterruptedException e) {
-            LOG.error("Failed to get node data!");
-            e.printStackTrace();
-        }
-        return bytes;
-    }
-
-    /**
-     * 删除MQ节点
-     */
-    public void deleteMQ(String path) {
-        try {
-            zooKeeper.delete(path, -1);
-        } catch (InterruptedException | KeeperException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 获取MQ存储节点数据
-     */
-    public Map<String, Map<String, List<String>>> getMQData() {
-        Map<String, Map<String, List<String>>> mqMap = new HashMap<>();
-        List<String> children = getMQChildren();
-        if (!children.isEmpty()) {
-            for (String child : children) {
-                Map<String, List<String>> map = new HashMap<>();
-                String childPath = path + "/" + child;
-                byte[] data = getMQDate(childPath);
-                if (data != null) {
-                    String ipcIds = new String(data);
-                    if (!ipcIds.equals("") && ipcIds.contains(",") && ipcIds.split(",").length >= 3) {
-                        ipcIds = ipcIds.substring(0, ipcIds.length() - 1);
-                        List<String> list = Arrays.asList(ipcIds.split(","));
-                        String userId = list.get(0);
-                        String time = list.get(1);
-                        List<String> ipcIdList = new ArrayList<>();
-                        for (int i = 2; i < list.size(); i++) {
-                            ipcIdList.add(list.get(i));
-                        }
-                        map.put(time, ipcIdList);
-                        mqMap.put(userId, map);
-                    }
-                }
-            }
-        }
-        return mqMap;
     }
 
     /**

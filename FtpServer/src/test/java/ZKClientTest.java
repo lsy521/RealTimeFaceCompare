@@ -1,6 +1,5 @@
 import com.hzgc.ftpserver.captureSubscription.CaptureSubscriptionObject;
 import com.hzgc.ftpserver.captureSubscription.MQSwitchImpl;
-import com.hzgc.ftpserver.captureSubscription.MQSwitchInit;
 import com.hzgc.ftpserver.captureSubscription.MQSwitchStart;
 
 import java.util.ArrayList;

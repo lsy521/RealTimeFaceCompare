@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 
-public class MQSwitchImpl extends MQSwitchInit implements MQSwitch {
+public class MQSwitchImpl extends MQSwitchImplInit implements MQSwitch {
 
     /**
      * 打开MQ接收数据

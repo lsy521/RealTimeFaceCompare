@@ -11,8 +11,8 @@ import java.util.Properties;
 /**
  * Zookeeper客户端初始化
  */
-public class MQSwitchInit {
-    private static Logger LOG = Logger.getLogger(MQSwitchInit.class);
+public class MQSwitchImplInit {
+    private static Logger LOG = Logger.getLogger(MQSwitchImplInit.class);
     protected static String path = "/mq_ipcid";
     protected static ZookeeperClient zookeeperClient;
 

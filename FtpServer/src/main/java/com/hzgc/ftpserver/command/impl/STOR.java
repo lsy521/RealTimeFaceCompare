@@ -44,9 +44,9 @@ import java.util.concurrent.BlockingQueue;
 
 /**
  * <strong>Internal class, do not use directly.</strong>
- * 
+ *
  * <code>STOR &lt;SP&gt; &lt;pathname&gt; &lt;CRLF&gt;</code><br>
- * 
+ *
  * This command causes the server-DTP to accept the data transferred via the
  * data connection and to store the data as a file at the server site. If the
  * file specified in the pathname exists at the server site, then its contents
@@ -172,10 +172,12 @@ public class STOR extends AbstractCommand {
                         if (!map.isEmpty()) {
                             String ipcID = map.get("ipcID");
                             String timeStamp = map.get("time");
-
+                            //拼装ftpUrl (带主机名的ftpUrl)
+                            String ftpHostNameUrl = FtpUtil.filePath2FtpUrl(fileName);
+                            //获取ftpUrl (带IP地址的ftpUrl)
+                            String ftpIpUrl = FtpUtil.getFtpUrl(ftpHostNameUrl);
                             //发送到rocketMQ
-                            SendResult tempResult = rocketMQProducer.send(ipcID, timeStamp, data);
-                            rocketMQProducer.send(rocketMQProducer.getMessTopic(), ipcID, timeStamp, tempResult.getOffsetMsgId().getBytes(), null);
+                            rocketMQProducer.send(ipcID, timeStamp, ftpIpUrl.getBytes());
 
                         }
                     }
@@ -197,7 +199,7 @@ public class STOR extends AbstractCommand {
                 ServerFtpStatistics ftpStat = (ServerFtpStatistics) context
                         .getFtpStatistics();
                 ftpStat.setUpload(session, file, transSz);
-                
+
             } catch (SocketException ex) {
                 LOG.debug("Socket exception during data transfer", ex);
                 failure = true;

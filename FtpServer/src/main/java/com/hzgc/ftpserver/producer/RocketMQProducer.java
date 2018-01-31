@@ -21,7 +21,6 @@ import java.util.UUID;
 public class RocketMQProducer implements Serializable {
     private static Logger LOG = Logger.getLogger(RocketMQProducer.class);
     private static String topic;
-    private static String messTopic;
     private static Properties properties = new Properties();
     private static RocketMQProducer instance = null;
     private DefaultMQProducer producer;
@@ -36,7 +35,6 @@ public class RocketMQProducer implements Serializable {
             properties.load(fis);
             String namesrvAddr = properties.getProperty("address");
             topic = properties.getProperty("topic");
-            messTopic = properties.getProperty("messTopic");
             String producerGroup = properties.getProperty("group", UUID.randomUUID().toString());
             if (StringUtil.strIsRight(namesrvAddr) && StringUtil.strIsRight(topic) && StringUtil.strIsRight(producerGroup)) {
                 producer = new DefaultMQProducer(producerGroup);
@@ -44,13 +42,13 @@ public class RocketMQProducer implements Serializable {
                 producer.setRetryAnotherBrokerWhenNotStoreOK(true);
                 producer.setNamesrvAddr(namesrvAddr);
                 producer.start();
-                LOG.info("producer started...");
+                LOG.info("RocketMQProducer started...");
             } else {
-                LOG.error("parameter init error");
-                throw new Exception("parameter init error");
+                LOG.error("RocketMQProducer param init error");
+                throw new Exception("RocketMQProducer param init error");
             }
         } catch (Exception e) {
-            LOG.error("producer init error...");
+            LOG.error("RocketMQProducer init error...");
             throw new RuntimeException(e);
         } finally {
             IOUtil.closeStream(fis);
@@ -109,9 +107,5 @@ public class RocketMQProducer implements Serializable {
             LOG.error("Send message error...");
         }
         return sendResult;
-    }
-
-    public String getMessTopic() {
-        return messTopic;
     }
 }

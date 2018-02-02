@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * 使用ZookeeperClient支持人脸抓拍订阅功能
  */
-public class MQSwitchClient extends ZookeeperClient{
+public class MQSwitchClient extends ZookeeperClient {
     private static Logger LOG = Logger.getLogger(MQSwitchClient.class);
 
     MQSwitchClient(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
@@ -26,6 +26,7 @@ public class MQSwitchClient extends ZookeeperClient{
         try {
             children = zooKeeper.getChildren(path, watcher);
         } catch (KeeperException | InterruptedException e) {
+            LOG.warn("Get MQ znode Children is null!" + path);
             e.printStackTrace();
         }
         return children;
@@ -40,7 +41,7 @@ public class MQSwitchClient extends ZookeeperClient{
             Stat stat = zooKeeper.exists(path, watcher);
             bytes = zooKeeper.getData(path, watcher, stat);
         } catch (KeeperException | InterruptedException e) {
-            LOG.error("Failed to get node data!");
+            LOG.error("Get MQ znode data Failed!");
             e.printStackTrace();
         }
         return bytes;
@@ -53,6 +54,7 @@ public class MQSwitchClient extends ZookeeperClient{
         try {
             zooKeeper.delete(path, -1);
         } catch (InterruptedException | KeeperException e) {
+            LOG.error("Delete MQ znode Failed!");
             e.printStackTrace();
         }
     }

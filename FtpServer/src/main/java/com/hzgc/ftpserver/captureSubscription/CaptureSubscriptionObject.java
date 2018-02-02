@@ -18,6 +18,10 @@ public class CaptureSubscriptionObject {
         return ipcIdList;
     }
 
+    void setIpcIdList(List<String> ipcIdList) {
+        this.ipcIdList = ipcIdList;
+    }
+
     void setIpcIdList(Map<String, Map<String, List<String>>> map) {
         List<String> ipcIdList = new ArrayList<>();
         if (!map.isEmpty()) {

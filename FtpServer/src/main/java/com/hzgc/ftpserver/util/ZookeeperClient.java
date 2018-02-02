@@ -73,9 +73,9 @@ public class ZookeeperClient {
                 CreateMode.EPHEMERAL_SEQUENTIAL	    临时序列节点，会话断开或过期时会删除此节点
             */
             zooKeeper.create(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            LOG.info("Creating MQ nodes in zookeeper is successful! path \":" + path + "\"");
+            LOG.info("Creating MQ nodes successful! path \":" + path + "\"");
         } catch (KeeperException | InterruptedException e) {
-            LOG.error("Creating MQ nodes in zookeeper is failed!");
+            LOG.error("Creating MQ nodes failed! path \":" + path + "\"");
             e.printStackTrace();
         } finally {
             zookeeperClose();
@@ -89,7 +89,25 @@ public class ZookeeperClient {
         this.createConnection(zookeeperAddress, session_timeout);
         try {
             zooKeeper.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            LOG.info("Creating Znode successful! path \":" + path + "\"");
         } catch (KeeperException | InterruptedException e) {
+            LOG.error("Creating Znode failed! path \":" + path + "\"");
+            e.printStackTrace();
+        } finally {
+            zookeeperClose();
+        }
+    }
+
+    /**
+     * 创建ZK节点
+     */
+    public void create(String path, boolean b) {
+        this.createConnection(zookeeperAddress, session_timeout);
+        try {
+            zooKeeper.create(path, String.valueOf(b).getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            LOG.info("Creating Znode successful! path \":" + path + "\"");
+        } catch (KeeperException | InterruptedException e) {
+            LOG.error("Creating Znode failed! path \":" + path + "\"");
             e.printStackTrace();
         } finally {
             zookeeperClose();
@@ -118,6 +136,22 @@ public class ZookeeperClient {
         try {
             //"-1"表示忽略版本
             zooKeeper.setData(path, bytes, -1);
+        } catch (KeeperException | InterruptedException e) {
+            LOG.error("Failed to modify node data!");
+            e.printStackTrace();
+        } finally {
+            zookeeperClose();
+        }
+    }
+
+    /**
+     * 更新节点数据
+     */
+    public void setData(boolean b) {
+        this.createConnection(zookeeperAddress, session_timeout);
+        try {
+            //"-1"表示忽略版本
+            zooKeeper.setData("/mq_show", String.valueOf(b).getBytes(), -1);
         } catch (KeeperException | InterruptedException e) {
             LOG.error("Failed to modify node data!");
             e.printStackTrace();

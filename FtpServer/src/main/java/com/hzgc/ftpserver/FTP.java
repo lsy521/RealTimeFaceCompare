@@ -75,7 +75,7 @@ public class FTP extends ClusterOverFtp {
         }
         MQSwitchStart mqSwitch = new MQSwitchStart();
         mqSwitch.start();
-        log.info("****************** FTP Server Start ******************");
+        log.info("****************** FTP SERVER STARTED ******************");
     }
 
     public static Map<Integer, Integer> getPidMap() {

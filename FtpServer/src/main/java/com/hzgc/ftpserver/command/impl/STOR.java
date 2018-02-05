@@ -55,8 +55,6 @@ public class STOR extends AbstractCommand {
 
     private final Logger LOG = LoggerFactory.getLogger(STOR.class);
 
-    private CaptureSubscriptionObject subscriptionObject = new CaptureSubscriptionObject();
-
     /**
      * Execute command.
      */
@@ -153,6 +151,7 @@ public class STOR extends AbstractCommand {
             try {
                 outStream = file.createOutputStream(skipLen);
                 RocketMQProducer rocketMQProducer = context.getProducerRocketMQ();
+                CaptureSubscriptionObject subscriptionObject = context.getSubscriptionObject();
                 InputStream is = dataConnection.getDataInputStream();
                 ByteArrayOutputStream baos = FtpUtils.inputStreamCacher(is);
                 byte[] data = baos.toByteArray();
@@ -171,6 +170,7 @@ public class STOR extends AbstractCommand {
 
                             //TODO 创建MQ数据开关
                             List<String> ipcIdList = subscriptionObject.getIpcIdList();
+                            LOG.info("STOR --> IPCID :" + ipcIdList);
                             if (!ipcIdList.isEmpty() && ipcIdList.contains(ipcID)){
                                 //拼装ftpUrl (带主机名的ftpUrl)
                                 String ftpHostNameUrl = FtpUtils.filePath2FtpUrl(fileName);

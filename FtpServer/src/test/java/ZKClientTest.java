@@ -13,13 +13,15 @@ public class ZKClientTest {
        // MQSwitchInit init = new MQSwitchInit();
         MQSwitchImpl mqSwitch = new MQSwitchImpl();
 
-        /*String userId1 = "user44";
+        String userId1 = "user1";
         long time1 = System.currentTimeMillis();
         List<String> user1 = new ArrayList<>();
-        user1.add("aa");
-        user1.add("bb");
-        user1.add("cc");
-        mqSwitch.openMQReception(userId1,time1,user1);*/
+        user1.add("2L04129PAU01933");
+        user1.add("3B0383FPAG00883");
+        user1.add("3K01E84PAU00083");
+        user1.add("3K01E84PAU00150");
+        user1.add("3K01E84PAU00498");
+        mqSwitch.openMQReception(userId1,time1,user1);
 
         /*String userId2 = "user2";
         long time2 = System.currentTimeMillis();//2018-01-19 11:37:36
@@ -34,6 +36,6 @@ public class ZKClientTest {
         mqSwitch.openShow(user3);*/
 
 
-        mqSwitch.closeMQReception("user44");
+        //mqSwitch.closeMQReception("user44");
     }
 }

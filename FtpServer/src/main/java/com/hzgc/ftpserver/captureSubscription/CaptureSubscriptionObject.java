@@ -13,7 +13,20 @@ public class CaptureSubscriptionObject {
     Map<String, Map<String, List<String>>> captureSubscription;
     //抓拍订阅设备列表
     private volatile List<String> ipcIdList;
+    private static CaptureSubscriptionObject instance = null;
 
+    protected CaptureSubscriptionObject(){}
+
+    public static CaptureSubscriptionObject getInstance() {
+        if (instance == null) {
+            synchronized (CaptureSubscriptionObject.class) {
+                if (instance == null) {
+                    instance = new CaptureSubscriptionObject();
+                }
+            }
+        }
+        return instance;
+    }
     public List<String> getIpcIdList() {
         return ipcIdList;
     }

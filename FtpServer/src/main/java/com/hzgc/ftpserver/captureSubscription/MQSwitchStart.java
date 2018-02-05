@@ -15,7 +15,7 @@ public class MQSwitchStart extends CaptureSubscriptionObject {
     private static Logger LOG = Logger.getLogger(MQSwitchStart.class);
     private MQSwitchClient mqSwitchClient;
     private String path = MQSwitchImplInit.getPath();
-    private CaptureSubscriptionObject object = new CaptureSubscriptionObject();
+    private CaptureSubscriptionObject object = CaptureSubscriptionObject.getInstance();
 
     public MQSwitchStart() {
         Properties properties = new Properties();
@@ -42,6 +42,8 @@ public class MQSwitchStart extends CaptureSubscriptionObject {
         Thread thread = new Thread() {
             public void run() {
                 Properties properties = new Properties();
+                Map<String, Map<String, List<String>>> map_copy;
+                List<String> list_copy;
                 while (true) {
                     try {
                         properties.load(new FileInputStream(
@@ -49,21 +51,28 @@ public class MQSwitchStart extends CaptureSubscriptionObject {
                         boolean openShow = Boolean.parseBoolean(properties.getProperty("mqshow"));
                         String ipcIds = properties.getProperty("mqshow_ipcid");
                         if (!openShow) {
-                            captureSubscription = mqSwitchClient.getData();
-                            object.setIpcIdList(captureSubscription);
-                            LOG.info("captureSubscription:" + captureSubscription + ", ipcIdList:" + object.getIpcIdList());
-                            for (String userId : captureSubscription.keySet()) {
-                                Map<String, List<String>> map = captureSubscription.get(userId);
-                                for (String time : map.keySet()) {
-                                    if (isInDate(time)) {
-                                        mqSwitchClient.delete(path + "/" + userId);
+                            map_copy = mqSwitchClient.getData();
+                            if (!map_copy.equals(captureSubscription)) {
+                                captureSubscription = map_copy;
+                                object.setIpcIdList(map_copy);
+                                LOG.info("OpenShow = false; Update ipcIdList");
+                                for (String userId : captureSubscription.keySet()) {
+                                    Map<String, List<String>> map = captureSubscription.get(userId);
+                                    for (String time : map.keySet()) {
+                                        if (isInDate(time)) {
+                                            mqSwitchClient.delete(path + "/" + userId);
+                                        }
                                     }
                                 }
                             }
+                            LOG.info("OpenShow = false; ipcIdList:" + object.getIpcIdList());
                         } else {
-                            List<String> ipcIdList = Arrays.asList(ipcIds.split(","));
-                            object.setIpcIdList(ipcIdList);
-                            LOG.info("captureSubscription:" + captureSubscription + ", ipcIdList:" + object.getIpcIdList());
+                            list_copy = Arrays.asList(ipcIds.split(","));
+                            if (!list_copy.equals(object.getIpcIdList())) {
+                                object.setIpcIdList(list_copy);
+                                LOG.info("OpenShow = true; Update ipcIdList");
+                            }
+                            LOG.info("OpenShow = true; ipcIdList:" + object.getIpcIdList());
                         }
                         try {
                             Thread.sleep(1000);

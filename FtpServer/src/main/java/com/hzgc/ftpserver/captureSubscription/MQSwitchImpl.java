@@ -1,7 +1,6 @@
 package com.hzgc.ftpserver.captureSubscription;
 
 import com.hzgc.dubbo.address.MQSwitch;
-import org.apache.log4j.Logger;
 
 import java.util.*;
 

@@ -73,7 +73,9 @@ public class FTP extends ClusterOverFtp {
         } catch (FtpException e) {
             e.printStackTrace();
         }
-
+        MQSwitchStart mqSwitch = new MQSwitchStart();
+        mqSwitch.start();
+        log.info("****************** FTP Server Start ******************");
     }
 
     public static Map<Integer, Integer> getPidMap() {
@@ -86,7 +88,5 @@ public class FTP extends ClusterOverFtp {
         ftp.startFtpServer();
         DataProcess data = new DataProcess();
         data.reader();
-        MQSwitchStart mqSwitch = new MQSwitchStart();
-        mqSwitch.start();
     }
 }

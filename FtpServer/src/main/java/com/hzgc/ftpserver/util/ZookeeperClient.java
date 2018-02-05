@@ -99,22 +99,6 @@ public class ZookeeperClient {
     }
 
     /**
-     * 创建ZK节点
-     */
-    public void create(String path, boolean b) {
-        this.createConnection(zookeeperAddress, session_timeout);
-        try {
-            zooKeeper.create(path, String.valueOf(b).getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            LOG.info("Creating Znode successful! path \":" + path + "\"");
-        } catch (KeeperException | InterruptedException e) {
-            LOG.error("Creating Znode failed! path \":" + path + "\"");
-            e.printStackTrace();
-        } finally {
-            zookeeperClose();
-        }
-    }
-
-    /**
      * 删除ZK节点
      */
     public void delete(String path) {
@@ -136,22 +120,6 @@ public class ZookeeperClient {
         try {
             //"-1"表示忽略版本
             zooKeeper.setData(path, bytes, -1);
-        } catch (KeeperException | InterruptedException e) {
-            LOG.error("Failed to modify node data!");
-            e.printStackTrace();
-        } finally {
-            zookeeperClose();
-        }
-    }
-
-    /**
-     * 更新节点数据
-     */
-    public void setData(boolean b) {
-        this.createConnection(zookeeperAddress, session_timeout);
-        try {
-            //"-1"表示忽略版本
-            zooKeeper.setData("/mq_show", String.valueOf(b).getBytes(), -1);
         } catch (KeeperException | InterruptedException e) {
             LOG.error("Failed to modify node data!");
             e.printStackTrace();
@@ -207,5 +175,4 @@ public class ZookeeperClient {
             }
         }
     }
-
 }

@@ -14,9 +14,9 @@ import java.util.Properties;
 public class MQSwitchImplInit {
     private static Logger LOG = Logger.getLogger(MQSwitchImplInit.class);
     protected static String path = "/mq_ipcid";
-    protected static ZookeeperClient zookeeperClient;
+    protected ZookeeperClient zookeeperClient;
 
-    static {
+    public MQSwitchImplInit(){
         Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
@@ -27,6 +27,18 @@ public class MQSwitchImplInit {
             e.printStackTrace();
         }
     }
+
+    /*static {
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
+            String zookeeperAddress = properties.getProperty("zookeeperAddress");
+            zookeeperClient = new ZookeeperClient(1000, zookeeperAddress, path, false);
+        } catch (IOException e) {
+            LOG.error("zookeeperAddress no found in the \"rocketmq.properties\"");
+            e.printStackTrace();
+        }
+    }*/
 
     public static String getPath() {
         return path;

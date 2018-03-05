@@ -1,5 +1,8 @@
 package com.hzgc.ftpserver;
 
+import com.hzgc.ftpserver.captureSubscription.MQShowImpl;
+import com.hzgc.ftpserver.captureSubscription.MQStart;
+import com.hzgc.ftpserver.captureSubscription.MQSubscriptionImpl;
 import com.hzgc.ftpserver.common.LoggerConfig;
 import com.hzgc.ftpserver.queue.DataProcess;
 import com.hzgc.util.common.FileUtil;
@@ -24,6 +27,10 @@ public class FTP extends ClusterOverFtp {
      */
     static {
         new LoggerConfig();
+        MQSubscriptionImpl mqSubscription = new MQSubscriptionImpl();
+        mqSubscription.create();
+        MQShowImpl mqShow = new MQShowImpl();
+        mqShow.create();
     }
 
     @Override
@@ -68,7 +75,9 @@ public class FTP extends ClusterOverFtp {
         } catch (FtpException e) {
             e.printStackTrace();
         }
-
+        MQStart mqStart = new MQStart();
+        mqStart.start();
+        log.info("****************** FTP SERVER STARTED ******************");
     }
 
     public static Map<Integer, Integer> getPidMap() {

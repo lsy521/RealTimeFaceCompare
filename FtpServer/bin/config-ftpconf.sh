@@ -90,6 +90,20 @@ function config_rkmq()
     # 替换ftpAddress.properties中FTP安装节点IP值：key=value（替换key字段的值value）
     sed -i "s#^address=.*#address=${ROCKET_NAMESERVER}:9876#g" ${CONF_FTP_DIR}/rocketmq.properties
 
+    # 从project-conf.properties中，根据zookeeper_installnode字段，读取zookeerper所在节点IP
+    ZK_HOSTS=`sed '/zookeeper_installnode/!d;s/.*=//' ${CONF_FILE} | tr -d '\r'`
+    # 将这些分号分割的ip用放入数组
+    zk_arr=(${KAFKA_HOSTS//;/ })
+    zkpro=''
+    for zk_host in ${zk_arr[@]}
+    do
+        zkpro="$zkpro$zk_host:2181,"
+    done
+    zkpro=${zkpro%?}
+
+    # 替换producer-over-ftp.properties中：key=value（替换key字段的值value）
+    sed -i "s#^zookeeperAddress=.*#zookeeperAddress=${zkpro}#g" ${CONF_FTP_DIR}/rocketmq.properties
+
     echo "配置完毕......"  | tee  -a  $LOG_FILE
 }
 

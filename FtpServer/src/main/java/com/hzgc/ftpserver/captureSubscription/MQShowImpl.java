@@ -15,7 +15,7 @@ public class MQShowImpl implements MQShow {
     private static final String path = "/mq_show";
     private ZookeeperClient zookeeperClient;
 
-    /*public MQShowImpl() {
+    public MQShowImpl() {
         Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
@@ -25,10 +25,6 @@ public class MQShowImpl implements MQShow {
             LOG.error("zookeeperAddress no found in the \"rocketmq.properties\"");
             e.printStackTrace();
         }
-    }*/
-    public MQShowImpl(){
-        zookeeperAddress = "172.18.18.100:2181,172.18.18.101:2181,172.18.18.102:2181";
-        zookeeperClient = new ZookeeperClient(1000, zookeeperAddress, path, false);
     }
 
     public static String getPath() {

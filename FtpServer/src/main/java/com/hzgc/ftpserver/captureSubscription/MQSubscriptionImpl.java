@@ -1,6 +1,6 @@
 package com.hzgc.ftpserver.captureSubscription;
 
-import com.hzgc.dubbo.address.MQSwitch;
+import com.hzgc.dubbo.address.MQSubscription;
 import com.hzgc.ftpserver.util.ZookeeperClient;
 import com.hzgc.util.common.FileUtil;
 import org.apache.log4j.Logger;
@@ -9,12 +9,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
-public class MQSubscriptionImpl implements MQSwitch {
+public class MQSubscriptionImpl implements MQSubscription {
     private static Logger LOG = Logger.getLogger(MQSubscriptionImpl.class);
     private static final String path = "/mq_subscription";
     private ZookeeperClient zookeeperClient;
 
-    /*public MQSubscriptionImpl(){
+    public MQSubscriptionImpl(){
         Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
@@ -24,10 +24,6 @@ public class MQSubscriptionImpl implements MQSwitch {
             LOG.error("zookeeperAddress no found in the \"rocketmq.properties\"");
             e.printStackTrace();
         }
-    }*/
-    public MQSubscriptionImpl() {
-        String zookeeperAddress = "172.18.18.100:2181,172.18.18.101:2181,172.18.18.102:2181";
-        zookeeperClient = new ZookeeperClient(1000, zookeeperAddress, path, false);
     }
 
     public static String getPath() {

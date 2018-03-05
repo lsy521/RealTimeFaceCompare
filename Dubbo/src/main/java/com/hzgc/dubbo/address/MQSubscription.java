@@ -2,7 +2,7 @@ package com.hzgc.dubbo.address;
 
 import java.util.List;
 
-public interface MQSwitch {
+public interface MQSubscription {
     /**
      * 打开MQ接收数据
      *

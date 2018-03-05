@@ -11,10 +11,10 @@ import java.util.*;
 /**
  * 使用ZookeeperClient支持人脸抓拍订阅功能
  */
-public class MQSwitchClient extends ZookeeperClient {
-    private static Logger LOG = Logger.getLogger(MQSwitchClient.class);
+public class MQSubscriptionClient extends ZookeeperClient {
+    private static Logger LOG = Logger.getLogger(MQSubscriptionClient.class);
 
-    MQSwitchClient(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
+    MQSubscriptionClient(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
         super(session_timeout, zookeeperAddress, path, watcher);
     }
 

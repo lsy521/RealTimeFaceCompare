@@ -20,7 +20,6 @@
 package com.hzgc.ftpserver.command.impl;
 
 import com.hzgc.ftpserver.captureSubscription.CaptureSubscriptionObject;
-import com.hzgc.ftpserver.captureSubscription.MQSwitchImpl;
 import com.hzgc.ftpserver.producer.RocketMQProducer;
 import com.hzgc.ftpserver.util.FtpUtils;
 import com.hzgc.ftpserver.queue.BufferQueue;

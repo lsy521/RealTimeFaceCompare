@@ -21,6 +21,7 @@ package com.hzgc.ftpserver.command.impl;
 
 import com.hzgc.dubbo.dynamicrepo.SearchType;
 import com.hzgc.ftpserver.captureSubscription.CaptureSubscriptionObject;
+import com.hzgc.ftpserver.captureSubscription.FTPShow;
 import com.hzgc.ftpserver.producer.FaceObject;
 import com.hzgc.ftpserver.producer.ProducerOverFtp;
 import com.hzgc.ftpserver.producer.RocketMQProducer;
@@ -175,7 +176,9 @@ public class STOR extends AbstractCommand {
                             String ipcID = map.get("ipcID");
                             String timeStamp = map.get("time");
 
-                            List<String> ipcIdList = subscriptionObject.getIpcIdList();
+                            //TODO 抓拍订阅及演示功能
+                            //List<String> ipcIdList = subscriptionObject.getIpcIdList();
+                            List<String> ipcIdList = FTPShow.getIpcIdList();
                             LOG.info("STOR --> IPCID :" + ipcIdList);
                             if (!ipcIdList.isEmpty() && ipcIdList.contains(ipcID)){
                                 //拼装ftpUrl (带主机名的ftpUrl)

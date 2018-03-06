@@ -1,9 +1,9 @@
 package com.hzgc.ftpserver;
 
-import com.hzgc.ftpserver.captureSubscription.MQShowImpl;
-import com.hzgc.ftpserver.captureSubscription.MQStart;
-import com.hzgc.ftpserver.captureSubscription.MQSubscriptionImpl;
+import com.hzgc.ftpserver.captureSubscription.*;
 import com.hzgc.ftpserver.common.LoggerConfig;
+import com.hzgc.ftpserver.impl.DefaultFtpServerContext;
+import com.hzgc.ftpserver.impl.FtpServerContext;
 import com.hzgc.ftpserver.queue.DataProcess;
 import com.hzgc.util.common.FileUtil;
 import com.hzgc.ftpserver.command.CommandFactoryFactory;
@@ -14,7 +14,9 @@ import com.hzgc.ftpserver.usermanager.PropertiesUserManagerFactory;
 import org.apache.log4j.Logger;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FTP extends ClusterOverFtp {
@@ -27,10 +29,12 @@ public class FTP extends ClusterOverFtp {
      */
     static {
         new LoggerConfig();
-        MQSubscriptionImpl mqSubscription = new MQSubscriptionImpl();
+        new FTPShow();
+        //TODO 抓拍订阅及演示功能
+        /*MQSubscriptionImpl mqSubscription = new MQSubscriptionImpl();
         mqSubscription.create();
         MQShowImpl mqShow = new MQShowImpl();
-        mqShow.create();
+        mqShow.create();*/
     }
 
     @Override
@@ -75,8 +79,9 @@ public class FTP extends ClusterOverFtp {
         } catch (FtpException e) {
             e.printStackTrace();
         }
-        MQStart mqStart = new MQStart();
-        mqStart.start();
+        //TODO 抓拍订阅及演示功能
+        /*MQStart mqStart = new MQStart();
+        mqStart.start();*/
         log.info("****************** FTP SERVER STARTED ******************");
     }
 

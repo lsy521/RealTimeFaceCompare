@@ -19,6 +19,7 @@
 
 package com.hzgc.ftpserver.impl;
 
+import com.hzgc.ftpserver.captureSubscription.CaptureSubscriptionObject;
 import com.hzgc.ftpserver.producer.ProducerOverFtp;
 import com.hzgc.ftpserver.producer.RocketMQProducer;
 import com.hzgc.ftpserver.queue.BufferQueue;
@@ -86,6 +87,8 @@ public class DefaultFtpServerContext implements FtpServerContext {
     private ProducerOverFtp producerOverFtp = ProducerOverFtp.getInstance();
 
     private RocketMQProducer producerRocketMQ = RocketMQProducer.getInstance();
+
+    private CaptureSubscriptionObject subscriptionObject = CaptureSubscriptionObject.getInstance();
 
     private static final List<Authority> ADMIN_AUTHORITIES = new ArrayList<Authority>();
     private static final List<Authority> ANON_AUTHORITIES = new ArrayList<Authority>();
@@ -217,6 +220,10 @@ public class DefaultFtpServerContext implements FtpServerContext {
                 // TODO: how to handle?
             }
         }
+    }
+
+    public CaptureSubscriptionObject getSubscriptionObject() {
+        return subscriptionObject;
     }
 
     public Listener getListener(String name) {

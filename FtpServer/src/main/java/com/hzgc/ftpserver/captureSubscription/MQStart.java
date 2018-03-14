@@ -66,32 +66,34 @@ public class MQStart extends CaptureSubscriptionObject {
         Thread thread = new Thread() {
             public void run() {
                 while (true) {
-                    if (!isShow()) {
-                        captureSubscription = mqSubscriptionClient.getData();
-                        object.setIpcIdList(captureSubscription);
-                        for (String userId : captureSubscription.keySet()) {
-                            Map<String, List<String>> map = captureSubscription.get(userId);
-                            for (String time : map.keySet()) {
-                                if (isInDate(time)) {
-                                    mqSubscriptionClient.delete(mqSubscription_path + "/" + userId);
+                    if (!isClose()){
+                        MQSwitchObject.getInstance().setShow(true);
+                        if (!isShow()) {
+                            captureSubscription = mqSubscriptionClient.getData();
+                            object.setIpcIdList(captureSubscription);
+                            for (String userId : captureSubscription.keySet()) {
+                                Map<String, List<String>> map = captureSubscription.get(userId);
+                                for (String time : map.keySet()) {
+                                    if (isInDate(time)) {
+                                        mqSubscriptionClient.delete(mqSubscription_path + "/" + userId);
+                                    }
                                 }
                             }
-                        }
-                        LOG.info("OpenShow = false, ipcIdList:" + object.getIpcIdList());
-                    } else {
-                        captureSubscription = mqShowClient.getData();
-                        object.setIpcIdList(captureSubscription);
-                        for (String userId : captureSubscription.keySet()) {
-                            Map<String, List<String>> map = captureSubscription.get(userId);
-                            for (String time : map.keySet()) {
-                                if (isInDate(time)) {
-                                    mqShowClient.delete(mqShow_path + "/" + userId);
+                            LOG.info("OpenShow = false, ipcIdList:" + object.getIpcIdList());
+                        } else {
+                            captureSubscription = mqShowClient.getData();
+                            object.setIpcIdList(captureSubscription);
+                            for (String userId : captureSubscription.keySet()) {
+                                Map<String, List<String>> map = captureSubscription.get(userId);
+                                for (String time : map.keySet()) {
+                                    if (isInDate(time)) {
+                                        mqShowClient.delete(mqShow_path + "/" + userId);
+                                    }
                                 }
                             }
+                            LOG.info("OpenShow = true, ipcIdList:" + object.getIpcIdList());
                         }
-                        LOG.info("OpenShow = true, ipcIdList:" + object.getIpcIdList());
-                    }
-                    if (isClose()) {
+                    }else if (isClose()) {
                         MQSwitchObject.getInstance().setShow(false);
                         LOG.info("Close MQ switch");
                     }

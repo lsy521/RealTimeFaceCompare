@@ -5,17 +5,15 @@ import org.apache.log4j.Logger;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 
-import java.util.Arrays;
-
 
 /**
  * 控制是否打开订阅及演示功能的总开关
  */
 public class MQSwitchClient extends ZookeeperClient {
     private static Logger LOG = Logger.getLogger(MQSwitchClient.class);
-    private String path = "/mq_swtich";
+    private static final String path = "/mq_switch";
 
-    public MQSwitchClient(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
+    MQSwitchClient(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
         super(session_timeout, zookeeperAddress, path, watcher);
     }
 
@@ -24,6 +22,10 @@ public class MQSwitchClient extends ZookeeperClient {
      */
     public void createMQSwitchZnode() {
         super.create(path, String.valueOf(false).getBytes());
+    }
+
+    public static String getPath() {
+        return path;
     }
 
     /**

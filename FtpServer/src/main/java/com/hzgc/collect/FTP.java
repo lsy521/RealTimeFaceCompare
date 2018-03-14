@@ -1,5 +1,9 @@
 package com.hzgc.collect;
 
+import com.hzgc.collect.expand.captureSubscription.MQShowImpl;
+import com.hzgc.collect.expand.captureSubscription.MQStart;
+import com.hzgc.collect.expand.captureSubscription.MQSubscriptionImpl;
+import com.hzgc.collect.expand.captureSubscription.MQSwitchObject;
 import com.hzgc.collect.expand.conf.CommonConf;
 import com.hzgc.collect.expand.merge.RecoverNotProData;
 import com.hzgc.collect.expand.merge.ScheRecoErrData;
@@ -34,6 +38,12 @@ public class FTP extends ClusterOverFtp {
     static {
         new LoggerConfig();
         HelperFactory.regist();
+        MQSubscriptionImpl mqSubscription = new MQSubscriptionImpl();
+        mqSubscription.createMQSubscriptionZnode();
+        MQShowImpl mqShow = new MQShowImpl();
+        mqShow.createMQShowZnode();
+        MQSwitchObject mqSwitch = new MQSwitchObject();
+        mqSwitch.getMqSwitchClient().createMQSwitchZnode();
     }
 
     //expand模块的公共Conf对象
@@ -83,7 +93,9 @@ public class FTP extends ClusterOverFtp {
         } catch (FtpException e) {
             e.printStackTrace();
         }
-
+        MQStart mqStart = new MQStart();
+        mqStart.start();
+        LOG.info("************************************ FTP SERVER STARTED ************************************");
     }
 
     public static Map<Integer, Integer> getPidMap() {

@@ -13,7 +13,7 @@ import java.util.*;
 public class MQStart extends CaptureSubscriptionObject {
     private static Logger LOG = Logger.getLogger(MQStart.class);
     private MQSubscriptionClient mqSubscriptionClient;
-    private String mqSwitch_path = MQSubscriptionImpl.getPath();
+    private String mqSubscription_path = MQSubscriptionImpl.getPath();
     private MQShowClient mqShowClient;
     private String mqShow_path = MQShowImpl.getPath();
     private CaptureSubscriptionObject object = CaptureSubscriptionObject.getInstance();
@@ -23,7 +23,7 @@ public class MQStart extends CaptureSubscriptionObject {
         try {
             properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
             String zookeeperAddress = properties.getProperty("zookeeperAddress");
-            mqSubscriptionClient = new MQSubscriptionClient(10000, zookeeperAddress, mqSwitch_path, false);
+            mqSubscriptionClient = new MQSubscriptionClient(10000, zookeeperAddress, mqSubscription_path, false);
             mqSubscriptionClient.createConnection(zookeeperAddress, 10000);
             mqShowClient = new MQShowClient(10000, zookeeperAddress, mqShow_path, false);
             mqShowClient.createConnection(zookeeperAddress, 10000);
@@ -41,9 +41,25 @@ public class MQStart extends CaptureSubscriptionObject {
         return startTime <= endTime;
     }
 
+    /**
+     * 定位功能
+     *
+     * @return true表示当前属于演示功能，false表示当前属于订阅功能
+     */
     private boolean isShow() {
         List<String> children = mqShowClient.getChildren();
         return !children.isEmpty();
+    }
+
+    /**
+     * 判断订阅和演示功能是否打开
+     *
+     * @return true表示演示和订阅功能两者都未打开，false表示演示和订阅功能两者有一个打开
+     */
+    private boolean isClose() {
+        List<String> mqShowChildren = mqShowClient.getChildren();
+        List<String> mqSubscriptionChildren = mqSubscriptionClient.getChildren();
+        return mqShowChildren.isEmpty() && mqSubscriptionChildren.isEmpty();
     }
 
     public void start() {
@@ -57,7 +73,7 @@ public class MQStart extends CaptureSubscriptionObject {
                             Map<String, List<String>> map = captureSubscription.get(userId);
                             for (String time : map.keySet()) {
                                 if (isInDate(time)) {
-                                    mqSubscriptionClient.delete(mqSwitch_path + "/" + userId);
+                                    mqSubscriptionClient.delete(mqSubscription_path + "/" + userId);
                                 }
                             }
                         }
@@ -74,6 +90,10 @@ public class MQStart extends CaptureSubscriptionObject {
                             }
                         }
                         LOG.info("OpenShow = true, ipcIdList:" + object.getIpcIdList());
+                    }
+                    if (isClose()) {
+                        MQSwitchObject.getInstance().setShow(false);
+                        LOG.info("Close MQ switch");
                     }
                     try {
                         Thread.sleep(1000);

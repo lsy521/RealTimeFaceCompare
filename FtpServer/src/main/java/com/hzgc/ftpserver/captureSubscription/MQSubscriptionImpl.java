@@ -14,7 +14,7 @@ public class MQSubscriptionImpl implements MQSubscription {
     private static final String path = "/mq_subscription";
     private ZookeeperClient zookeeperClient;
 
-    public MQSubscriptionImpl(){
+    /*public MQSubscriptionImpl(){
         Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
@@ -24,6 +24,10 @@ public class MQSubscriptionImpl implements MQSubscription {
             LOG.error("zookeeperAddress no found in the \"rocketmq.properties\"");
             e.printStackTrace();
         }
+    }*/
+    public MQSubscriptionImpl(){
+            String zookeeperAddress = "172.18.18.100:2181,172.18.18.101:2181,172.18.18.102:2181";
+            zookeeperClient = new ZookeeperClient(10000, zookeeperAddress, path, false);
     }
 
     public static String getPath() {
@@ -33,7 +37,7 @@ public class MQSubscriptionImpl implements MQSubscription {
     /**
      * 创建MQ存储节点
      */
-    public void create() {
+    public void createMQSubscriptionZnode() {
         zookeeperClient.create();
     }
 
@@ -54,6 +58,7 @@ public class MQSubscriptionImpl implements MQSubscription {
                 data.append(ipcId).append(",");
             }
             zookeeperClient.create(childPath, data.toString().getBytes());
+            MQSwitchObject.getInstance().setShow(true);
         }
     }
 

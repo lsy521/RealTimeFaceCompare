@@ -14,14 +14,14 @@ public class ZKClientTest {
         user1.add("2L04129PAU01933");
         user1.add("3B0383FPAG00883");
         user1.add("3K01E84PAU00083");
-        mqSwitch.openMQReception(userId1,time1,user1);*/
-
+        mqSubscription.openMQReception(userId1,time1,user1);
+*/
         MQShowImpl mqShow = new MQShowImpl();
-        /*long time2 = System.currentTimeMillis();//2018-01-19 11:37:36
+        long time2 = System.currentTimeMillis();//2018-01-19 11:37:36
         List<String> user2 = new ArrayList<>();
         user2.add("xiao");
         user2.add("qi");
-        mqShow.openMQShow("xiaoqi",time2,user2);*/
+        mqShow.openMQShow("xiaoqi",time2,user2);
 
         //mqShow.closeMQShow("xiaoqi");
 
@@ -39,6 +39,6 @@ public class ZKClientTest {
         mqSwitch.openShow(user3);*/
 
 
-        mqSubscription.closeMQReception("user2");
+        //mqSubscription.closeMQReception("user2");
     }
 }

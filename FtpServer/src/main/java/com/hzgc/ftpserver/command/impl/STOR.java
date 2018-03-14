@@ -20,6 +20,7 @@
 package com.hzgc.ftpserver.command.impl;
 
 import com.hzgc.ftpserver.captureSubscription.CaptureSubscriptionObject;
+import com.hzgc.ftpserver.captureSubscription.MQSwitchObject;
 import com.hzgc.ftpserver.producer.RocketMQProducer;
 import com.hzgc.ftpserver.util.FtpUtils;
 import com.hzgc.ftpserver.queue.BufferQueue;
@@ -151,6 +152,7 @@ public class STOR extends AbstractCommand {
                 outStream = file.createOutputStream(skipLen);
                 RocketMQProducer rocketMQProducer = context.getProducerRocketMQ();
                 CaptureSubscriptionObject subscriptionObject = context.getSubscriptionObject();
+                MQSwitchObject mqSwitchObject = context.getMqSwitchObject();
                 InputStream is = dataConnection.getDataInputStream();
                 ByteArrayOutputStream baos = FtpUtils.inputStreamCacher(is);
                 byte[] data = baos.toByteArray();
@@ -166,11 +168,18 @@ public class STOR extends AbstractCommand {
                         if (!map.isEmpty()) {
                             String ipcID = map.get("ipcID");
                             String timeStamp = map.get("time");
-
-                            //TODO 创建MQ数据开关
-                            List<String> ipcIdList = subscriptionObject.getIpcIdList();
-                            LOG.info("STOR --> IPCID :" + ipcIdList);
-                            if (!ipcIdList.isEmpty() && ipcIdList.contains(ipcID)){
+                            if (mqSwitchObject.isShow()) {
+                                List<String> ipcIdList = subscriptionObject.getIpcIdList();
+                                LOG.info("STOR --> IPCID :" + ipcIdList);
+                                if (!ipcIdList.isEmpty() && ipcIdList.contains(ipcID)) {
+                                    //拼装ftpUrl (带主机名的ftpUrl)
+                                    String ftpHostNameUrl = FtpUtils.filePath2FtpUrl(fileName);
+                                    //获取ftpUrl (带IP地址的ftpUrl)
+                                    String ftpIpUrl = FtpUtils.getFtpUrl(ftpHostNameUrl);
+                                    //发送到rocketMQ
+                                    rocketMQProducer.send(ipcID, timeStamp, ftpIpUrl.getBytes());
+                                }
+                            } else if (!mqSwitchObject.isShow()) {
                                 //拼装ftpUrl (带主机名的ftpUrl)
                                 String ftpHostNameUrl = FtpUtils.filePath2FtpUrl(fileName);
                                 //获取ftpUrl (带IP地址的ftpUrl)
@@ -227,15 +236,35 @@ public class STOR extends AbstractCommand {
                     LOG.error(fileName + ": contain unknown ipcID, Not send to rocketMQ and Kafka!");
                 } else {
                     if (fileName.contains(".jpg") && faceNum > 0) {
-                        BufferQueue bufferQueue = context.getBufferQueue();
-                        BlockingQueue<String> queue = bufferQueue.getQueue();
-                        try {
-                            queue.put(fileName);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        Map<String, String> map = FtpUtils.getFtpPathMessage(fileName);
+                        //若获取不到信息，则不发rocketMQ和Kafka
+                        if (!map.isEmpty()) {
+                            String ipcID = map.get("ipcID");
+                            MQSwitchObject mqSwitchObject = context.getMqSwitchObject();
+                            if (mqSwitchObject.isShow()) {
+                                CaptureSubscriptionObject subscriptionObject = context.getSubscriptionObject();
+                                List<String> ipcIdList = subscriptionObject.getIpcIdList();
+                                if (!ipcIdList.isEmpty() && ipcIdList.contains(ipcID)) {
+                                    BufferQueue bufferQueue = context.getBufferQueue();
+                                    BlockingQueue<String> queue = bufferQueue.getQueue();
+                                    try {
+                                        queue.put(fileName);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    LOG.info("Push to queue success,queue size : " + queue.size());
+                                }
+                            } else if (!mqSwitchObject.isShow()) {
+                                BufferQueue bufferQueue = context.getBufferQueue();
+                                BlockingQueue<String> queue = bufferQueue.getQueue();
+                                try {
+                                    queue.put(fileName);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                LOG.info("Push to queue success,queue size : " + queue.size());
+                            }
                         }
-                        LOG.info("Push to queue success,queue size : " + queue.size());
-
                     }
 
                 }

@@ -1,8 +1,6 @@
 package com.hzgc.ftpserver;
 
-import com.hzgc.ftpserver.captureSubscription.MQShowImpl;
-import com.hzgc.ftpserver.captureSubscription.MQStart;
-import com.hzgc.ftpserver.captureSubscription.MQSubscriptionImpl;
+import com.hzgc.ftpserver.captureSubscription.*;
 import com.hzgc.ftpserver.util.LoggerConfig;
 import com.hzgc.ftpserver.queue.DataProcess;
 import com.hzgc.util.common.FileUtil;
@@ -27,9 +25,11 @@ public class FTP extends ClusterOverFtp {
     static {
         new LoggerConfig();
         MQSubscriptionImpl mqSubscription = new MQSubscriptionImpl();
-        mqSubscription.create();
+        mqSubscription.createMQSubscriptionZnode();
         MQShowImpl mqShow = new MQShowImpl();
-        mqShow.create();
+        mqShow.createMQShowZnode();
+        MQSwitchObject mqSwitch = new MQSwitchObject();
+        mqSwitch.getMqSwitchClient().createMQSwitchZnode();
     }
 
     @Override

@@ -16,8 +16,6 @@ public class ZookeeperParam implements Serializable{
     public static final String PATH_SUBSCRIBE = "/mq_subscribe";
     //演示节点路径
     public static final String PATH_MQSHOW = "/mq_show";
-    //总开关路径
-    public static final String PATH_SWITCH = "/mq_switch";
     //注册在path上的Watcher,节点变更会通知会向客户端发起通知
     public static final boolean WATCHER = false;
 }

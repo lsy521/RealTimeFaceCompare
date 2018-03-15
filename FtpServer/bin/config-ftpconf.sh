@@ -97,7 +97,7 @@ function config_cluster_over_ftp()
         zkpro=''
         for zk_host in ${zk_arr[@]}
         do
-            zkpro="$zkpro$zk_host:9092,"
+            zkpro="$zkpro$zk_host:2181,"
         done
         zkpro=${zkpro%?}
 

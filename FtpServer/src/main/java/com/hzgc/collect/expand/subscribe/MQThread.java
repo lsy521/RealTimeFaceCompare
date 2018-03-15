@@ -8,11 +8,11 @@ import java.util.*;
 /**
  * 人脸抓拍订阅功能及人脸抓拍演示功能定时刷新及去除过期数据
  */
-public class MQThread extends SubscriptionObject implements Serializable {
+public class MQThread extends ReceiveObject implements Serializable {
     private static Logger LOG = Logger.getLogger(MQThread.class);
     private MQSubscriptionClient mqSubscriptionClient;
     private MQShowClient mqShowClient;
-    private SubscriptionObject object = SubscriptionObject.getInstance();
+    private ReceiveObject object = ReceiveObject.getInstance();
 
     public MQThread() {
         mqSubscriptionClient = new MQSubscriptionClient(ZookeeperParam.SESSION_TIMEOUT, ZookeeperParam.zookeeperAddress, ZookeeperParam.PATH_SUBSCRIBE, ZookeeperParam.WATCHER);
@@ -32,58 +32,41 @@ public class MQThread extends SubscriptionObject implements Serializable {
     /**
      * 定位功能
      *
-     * @return true表示当前属于演示功能，false表示当前属于订阅功能
+     * @return true表示当前属于订阅功能，false表示当前属于演示功能
      */
     private boolean isShow() {
         List<String> children = mqShowClient.getChildren();
-        return !children.isEmpty();
-    }
-
-    /**
-     * 判断订阅和演示功能是否打开
-     *
-     * @return true表示演示和订阅功能两者都未打开，false表示演示和订阅功能两者有一个打开
-     */
-    private boolean isClose() {
-        List<String> mqShowChildren = mqShowClient.getChildren();
-        List<String> mqSubscriptionChildren = mqSubscriptionClient.getChildren();
-        return mqShowChildren.isEmpty() && mqSubscriptionChildren.isEmpty();
+        return children.isEmpty();
     }
 
     public void start() {
         Thread thread = new Thread() {
             public void run() {
                 while (true) {
-                    if (!isClose()) {
-                        MQSwitchObject.getInstance().setMqSwitch(true);
-                        if (!isShow()) {
-                            captureSubscription = mqSubscriptionClient.getData();
-                            object.setIpcIdList(captureSubscription);
-                            for (String userId : captureSubscription.keySet()) {
-                                Map<String, List<String>> map = captureSubscription.get(userId);
-                                for (String time : map.keySet()) {
-                                    if (isInDate(time)) {
-                                        mqSubscriptionClient.delete(ZookeeperParam.PATH_SUBSCRIBE + "/" + userId);
-                                    }
+                    if (isShow()) {
+                        map_ZKData = mqSubscriptionClient.getData();
+                        object.setIpcIdList_subscription(map_ZKData);
+                        for (String userId : map_ZKData.keySet()) {
+                            Map<String, List<String>> map = map_ZKData.get(userId);
+                            for (String time : map.keySet()) {
+                                if (isInDate(time)) {
+                                    mqSubscriptionClient.delete(ZookeeperParam.PATH_SUBSCRIBE + "/" + userId);
                                 }
                             }
-                            LOG.info("OpenShow = false, ipcIdList:" + object.getIpcIdList());
-                        } else {
-                            captureSubscription = mqShowClient.getData();
-                            object.setIpcIdList(captureSubscription);
-                            for (String userId : captureSubscription.keySet()) {
-                                Map<String, List<String>> map = captureSubscription.get(userId);
-                                for (String time : map.keySet()) {
-                                    if (isInDate(time)) {
-                                        mqShowClient.delete(ZookeeperParam.PATH_MQSHOW + "/" + userId);
-                                    }
-                                }
-                            }
-                            LOG.info("OpenShow = true, ipcIdList:" + object.getIpcIdList());
                         }
-                    } else if (isClose()) {
-                        MQSwitchObject.getInstance().setMqSwitch(false);
-                        LOG.info("Close MQ switch");
+                        LOG.info("OpenShow = false, ipcIdList:" + object.getIpcIdList_subscription());
+                    } else {
+                        map_ZKData = mqShowClient.getData();
+                        object.setIpcIdList_show(map_ZKData);
+                        for (String userId : map_ZKData.keySet()) {
+                            Map<String, List<String>> map = map_ZKData.get(userId);
+                            for (String time : map.keySet()) {
+                                if (isInDate(time)) {
+                                    mqShowClient.delete(ZookeeperParam.PATH_MQSHOW + "/" + userId);
+                                }
+                            }
+                        }
+                        LOG.info("OpenShow = true, ipcIdList:" + object.getIpcIdList_show());
                     }
                     try {
                         Thread.sleep(1000);

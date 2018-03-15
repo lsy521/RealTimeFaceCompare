@@ -7,6 +7,9 @@ import org.apache.zookeeper.data.Stat;
 
 import java.util.*;
 
+/**
+ * 使用ZookeeperClient支持人脸抓拍演示功能
+ */
 public class MQShowClient extends ZookeeperClient {
     private static Logger LOG = Logger.getLogger(MQShowClient.class);
 

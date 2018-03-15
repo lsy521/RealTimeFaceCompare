@@ -1,8 +1,7 @@
 package com.hzgc.collect.ftp.command.impl;
 
 import com.hzgc.collect.expand.subscribe.FtpSwitchObject;
-import com.hzgc.collect.expand.subscribe.SubscriptionObject;
-import com.hzgc.collect.expand.subscribe.MQSwitchObject;
+import com.hzgc.collect.expand.subscribe.ReceiveObject;
 import com.hzgc.collect.expand.log.LogEvent;
 import com.hzgc.collect.expand.processer.FtpPathMessage;
 import com.hzgc.collect.expand.processer.RocketMQProducer;
@@ -148,16 +147,23 @@ public class STOR extends AbstractCommand {
                     int faceNum = FtpUtils.pickPicture(fileName);
                     if (fileName.contains(".jpg") && faceNum > 0) {
                         FtpPathMessage message = FtpUtils.getFtpPathMessage(fileName);
-                        if (FtpSwitchObject.isFtpSwitch()){
-                            if (MQSwitchObject.getInstance().isMqSwitch()) {
-                                List<String> ipcIdList = SubscriptionObject.getInstance().getIpcIdList();
-                                if (!ipcIdList.isEmpty() && ipcIdList.contains(message.getIpcid())) {
+                        if (FtpSwitchObject.isFtpSwitch()) {
+                            List<String> showList = ReceiveObject.getInstance().getIpcIdList_show();
+                            if (!showList.isEmpty()) {
+                                if (showList.contains(message.getIpcid())) {
                                     sendMQAndWriteLogEvent(fileName, file, message, context);
                                 }
-                            } else if (!MQSwitchObject.getInstance().isMqSwitch()) {
-                                sendMQAndWriteLogEvent(fileName, file, message, context);
+                            } else {
+                                List<String> subscriptionList = ReceiveObject.getInstance().getIpcIdList_subscription();
+                                if (!subscriptionList.isEmpty()) {
+                                    if (subscriptionList.contains(message.getIpcid())) {
+                                        sendMQAndWriteLogEvent(fileName, file, message, context);
+                                    }
+                                } else {
+                                    writeLogEvent(fileName, file, context);
+                                }
                             }
-                        }else if (!FtpSwitchObject.isFtpSwitch()){
+                        } else {
                             sendMQAndWriteLogEvent(fileName, file, message, context);
                         }
                     }
@@ -189,6 +195,17 @@ public class STOR extends AbstractCommand {
         event.setStatus("0");
         //发送到rocketMQ
         RocketMQProducer.getInstance().send(message.getIpcid(), message.getTimeStamp(), ftpIpUrl.getBytes());
+        context.getScheduler().putData(event);
+    }
+
+    private void writeLogEvent(String fileName, FtpFile file, FtpServerContext context) {
+        //拼装ftpUrl (带主机名的ftpUrl)
+        String ftpHostNameUrl = FtpUtils.filePath2FtpUrl(fileName);
+        LogEvent event = new LogEvent();
+        event.setTimeStamp(System.currentTimeMillis());
+        event.setAbsolutePath(file.getFileAbsolutePa());
+        event.setFtpPath(ftpHostNameUrl);
+        event.setStatus("0");
         context.getScheduler().putData(event);
     }
 }

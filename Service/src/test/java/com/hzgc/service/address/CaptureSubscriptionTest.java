@@ -19,9 +19,9 @@ public class CaptureSubscriptionTest {
         user1.add("3K01E84PAU00083");
         mqSubscription.openMQReception(userId1,time1,user1);*/
 
-        mqSubscription.closeMQReception("user1");
+        //mqSubscription.closeMQReception("user2");
 
-        MQShowImpl mqShow = new MQShowImpl();
+        //MQShowImpl mqShow = new MQShowImpl();
 
         /*long time2 = System.currentTimeMillis();//2018-01-19 11:37:36
         List<String> user2 = new ArrayList<>();
@@ -32,12 +32,12 @@ public class CaptureSubscriptionTest {
         //mqShow.closeMQShow("xiaoqi");
 
 
-        /*String userId2 = "user2";
+        String userId2 = "user2";
         long time2 = System.currentTimeMillis();//2018-01-19 11:37:36
         List<String> user2 = new ArrayList<>();
         user2.add("xiao");
         user2.add("qi");
-        mqSubscription.openMQReception(userId2,time2,user2);*/
+        mqSubscription.openMQReception(userId2,time2,user2);
 
         /*List<String> user3 = new ArrayList<>();
         user3.add("55");

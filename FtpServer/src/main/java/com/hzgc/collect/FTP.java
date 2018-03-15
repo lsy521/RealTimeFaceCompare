@@ -40,8 +40,6 @@ public class FTP extends ClusterOverFtp {
         mqSubscription.createMQSubscriptionZnode();
         MQShowClient mqShow = new MQShowClient(ZookeeperParam.SESSION_TIMEOUT,ZookeeperParam.zookeeperAddress,ZookeeperParam.PATH_MQSHOW,ZookeeperParam.WATCHER);
         mqShow.createMQShowZnode();
-        MQSwitchClient mqSwitch = new MQSwitchClient(ZookeeperParam.SESSION_TIMEOUT,ZookeeperParam.zookeeperAddress,ZookeeperParam.PATH_SWITCH,ZookeeperParam.WATCHER);
-        mqSwitch.createMQSwitchZnode();
     }
 
     //expand模块的公共Conf对象

@@ -1,6 +1,7 @@
 package com.hzgc.collect.ftp.command.impl;
 
-import com.hzgc.collect.expand.subscribe.CaptureSubscriptionObject;
+import com.hzgc.collect.expand.subscribe.FtpSwitchObject;
+import com.hzgc.collect.expand.subscribe.SubscriptionObject;
 import com.hzgc.collect.expand.subscribe.MQSwitchObject;
 import com.hzgc.collect.expand.log.LogEvent;
 import com.hzgc.collect.expand.processer.FtpPathMessage;
@@ -147,12 +148,16 @@ public class STOR extends AbstractCommand {
                     int faceNum = FtpUtils.pickPicture(fileName);
                     if (fileName.contains(".jpg") && faceNum > 0) {
                         FtpPathMessage message = FtpUtils.getFtpPathMessage(fileName);
-                        if (MQSwitchObject.getInstance().isShow()) {
-                            List<String> ipcIdList = CaptureSubscriptionObject.getInstance().getIpcIdList();
-                            if (!ipcIdList.isEmpty() && ipcIdList.contains(message.getIpcid())) {
+                        if (FtpSwitchObject.isFtpSwitch()){
+                            if (MQSwitchObject.getInstance().isShow()) {
+                                List<String> ipcIdList = SubscriptionObject.getInstance().getIpcIdList();
+                                if (!ipcIdList.isEmpty() && ipcIdList.contains(message.getIpcid())) {
+                                    sendMQAndWriteLogEvent(fileName, file, message, context);
+                                }
+                            } else if (!MQSwitchObject.getInstance().isShow()) {
                                 sendMQAndWriteLogEvent(fileName, file, message, context);
                             }
-                        } else if (!MQSwitchObject.getInstance().isShow()) {
+                        }else if (!FtpSwitchObject.isFtpSwitch()){
                             sendMQAndWriteLogEvent(fileName, file, message, context);
                         }
                     }

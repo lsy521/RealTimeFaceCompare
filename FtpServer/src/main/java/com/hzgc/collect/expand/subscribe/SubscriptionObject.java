@@ -8,22 +8,23 @@ import java.util.Map;
 /**
  * 抓拍订阅对象
  */
-public class CaptureSubscriptionObject implements Serializable {
+public class SubscriptionObject implements Serializable {
 
     //zookeeper中保存的抓拍订阅设备信息
     Map<String, Map<String, List<String>>> captureSubscription;
     //抓拍订阅设备列表
     private volatile List<String> ipcIdList;
-    private static CaptureSubscriptionObject instance = null;
 
-    CaptureSubscriptionObject() {
+    private static SubscriptionObject instance = null;
+
+    SubscriptionObject() {
     }
 
-    public static CaptureSubscriptionObject getInstance() {
+    public static SubscriptionObject getInstance() {
         if (instance == null) {
-            synchronized (CaptureSubscriptionObject.class) {
+            synchronized (SubscriptionObject.class) {
                 if (instance == null) {
-                    instance = new CaptureSubscriptionObject();
+                    instance = new SubscriptionObject();
                 }
             }
         }

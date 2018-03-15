@@ -35,6 +35,7 @@ public class FTP extends ClusterOverFtp {
     static {
         new LoggerConfig();
         HelperFactory.regist();
+        new FtpSwitchObject();
         MQSubscriptionClient mqSubscription = new MQSubscriptionClient(ZookeeperParam.SESSION_TIMEOUT,ZookeeperParam.zookeeperAddress,ZookeeperParam.PATH_SUBSCRIBE,ZookeeperParam.WATCHER);
         mqSubscription.createMQSubscriptionZnode();
         MQShowClient mqShow = new MQShowClient(ZookeeperParam.SESSION_TIMEOUT,ZookeeperParam.zookeeperAddress,ZookeeperParam.PATH_MQSHOW,ZookeeperParam.WATCHER);
@@ -90,8 +91,8 @@ public class FTP extends ClusterOverFtp {
         } catch (FtpException e) {
             e.printStackTrace();
         }
-        MQStart mqStart = new MQStart();
-        mqStart.start();
+        MQThread thread = new MQThread();
+        thread.start();
         LOG.info("************************************ FTP SERVER STARTED ************************************");
     }
 

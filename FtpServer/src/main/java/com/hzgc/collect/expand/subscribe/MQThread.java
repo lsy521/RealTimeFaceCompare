@@ -8,13 +8,13 @@ import java.util.*;
 /**
  * 人脸抓拍订阅功能及人脸抓拍演示功能定时刷新及去除过期数据
  */
-public class MQStart extends CaptureSubscriptionObject implements Serializable {
-    private static Logger LOG = Logger.getLogger(MQStart.class);
+public class MQThread extends SubscriptionObject implements Serializable {
+    private static Logger LOG = Logger.getLogger(MQThread.class);
     private MQSubscriptionClient mqSubscriptionClient;
     private MQShowClient mqShowClient;
-    private CaptureSubscriptionObject object = CaptureSubscriptionObject.getInstance();
+    private SubscriptionObject object = SubscriptionObject.getInstance();
 
-    public MQStart() {
+    public MQThread() {
         mqSubscriptionClient = new MQSubscriptionClient(ZookeeperParam.SESSION_TIMEOUT, ZookeeperParam.zookeeperAddress, ZookeeperParam.PATH_SUBSCRIBE, ZookeeperParam.WATCHER);
         mqSubscriptionClient.createConnection(ZookeeperParam.zookeeperAddress, ZookeeperParam.SESSION_TIMEOUT);
         mqShowClient = new MQShowClient(ZookeeperParam.SESSION_TIMEOUT, ZookeeperParam.zookeeperAddress, ZookeeperParam.PATH_MQSHOW, ZookeeperParam.WATCHER);

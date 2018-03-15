@@ -1,5 +1,6 @@
-package com.hzgc.collect.expand.captureSubscription;
+package com.hzgc.collect.expand.subscribe;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +8,7 @@ import java.util.Map;
 /**
  * 抓拍订阅对象
  */
-public class CaptureSubscriptionObject {
+public class CaptureSubscriptionObject implements Serializable {
 
     //zookeeper中保存的抓拍订阅设备信息
     Map<String, Map<String, List<String>>> captureSubscription;
@@ -15,7 +16,8 @@ public class CaptureSubscriptionObject {
     private volatile List<String> ipcIdList;
     private static CaptureSubscriptionObject instance = null;
 
-    protected CaptureSubscriptionObject(){}
+    CaptureSubscriptionObject() {
+    }
 
     public static CaptureSubscriptionObject getInstance() {
         if (instance == null) {
@@ -27,6 +29,7 @@ public class CaptureSubscriptionObject {
         }
         return instance;
     }
+
     public List<String> getIpcIdList() {
         return ipcIdList;
     }

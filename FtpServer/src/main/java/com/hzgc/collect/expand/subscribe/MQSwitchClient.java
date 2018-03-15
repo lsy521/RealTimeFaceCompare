@@ -1,4 +1,4 @@
-package com.hzgc.collect.expand.captureSubscription;
+package com.hzgc.collect.expand.subscribe;
 
 import com.hzgc.collect.expand.util.ZookeeperClient;
 import org.apache.log4j.Logger;
@@ -11,9 +11,8 @@ import org.apache.zookeeper.data.Stat;
  */
 public class MQSwitchClient extends ZookeeperClient {
     private static Logger LOG = Logger.getLogger(MQSwitchClient.class);
-    private static final String path = "/mq_switch";
 
-    MQSwitchClient(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
+    public MQSwitchClient(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
         super(session_timeout, zookeeperAddress, path, watcher);
     }
 
@@ -22,10 +21,6 @@ public class MQSwitchClient extends ZookeeperClient {
      */
     public void createMQSwitchZnode() {
         super.create(path, String.valueOf(false).getBytes());
-    }
-
-    public static String getPath() {
-        return path;
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.hzgc.collect.expand.captureSubscription;
+package com.hzgc.collect.expand.subscribe;
 
 
 import com.hzgc.collect.expand.util.ZookeeperClient;
@@ -14,8 +14,15 @@ import java.util.*;
 public class MQSubscriptionClient extends ZookeeperClient {
     private static Logger LOG = Logger.getLogger(MQSubscriptionClient.class);
 
-    MQSubscriptionClient(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
+    public MQSubscriptionClient(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
         super(session_timeout, zookeeperAddress, path, watcher);
+    }
+
+    /**
+     * 创建MQ存储节点
+     */
+    public void createMQSubscriptionZnode() {
+        super.create();
     }
 
     /**

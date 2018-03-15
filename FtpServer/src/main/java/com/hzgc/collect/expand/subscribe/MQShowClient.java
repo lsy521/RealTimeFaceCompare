@@ -1,4 +1,4 @@
-package com.hzgc.collect.expand.captureSubscription;
+package com.hzgc.collect.expand.subscribe;
 
 import com.hzgc.collect.expand.util.ZookeeperClient;
 import org.apache.log4j.Logger;
@@ -12,6 +12,13 @@ public class MQShowClient extends ZookeeperClient {
 
     public MQShowClient(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
         super(session_timeout, zookeeperAddress, path, watcher);
+    }
+
+    /**
+     * 创建MQ演示功能节点
+     */
+    public void createMQShowZnode() {
+        super.create();
     }
 
     /**

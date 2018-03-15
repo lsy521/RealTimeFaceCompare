@@ -1,4 +1,7 @@
-package com.hzgc.collect.expand.captureSubscription;
+package com.hzgc.service.address;
+
+import com.hzgc.service.address.MQShowImpl;
+import com.hzgc.service.address.MQSubscriptionImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +19,11 @@ public class CaptureSubscriptionTest {
         user1.add("3K01E84PAU00083");
         mqSubscription.openMQReception(userId1,time1,user1);*/
 
+        mqSubscription.closeMQReception("user1");
+
         MQShowImpl mqShow = new MQShowImpl();
 
-       /* long time2 = System.currentTimeMillis();//2018-01-19 11:37:36
+        /*long time2 = System.currentTimeMillis();//2018-01-19 11:37:36
         List<String> user2 = new ArrayList<>();
         user2.add("xiao");
         user2.add("qi");
@@ -40,6 +45,5 @@ public class CaptureSubscriptionTest {
         mqSwitch.openShow(user3);*/
 
 
-        //mqSubscription.closeMQReception("user1");
     }
 }

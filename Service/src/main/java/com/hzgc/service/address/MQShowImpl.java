@@ -1,41 +1,21 @@
-package com.hzgc.collect.expand.captureSubscription;
+package com.hzgc.service.address;
 
+import com.hzgc.collect.expand.subscribe.MQShowClient;
+import com.hzgc.collect.expand.subscribe.ZookeeperParam;
 import com.hzgc.collect.expand.util.ZookeeperClient;
 import com.hzgc.dubbo.address.MQShow;
-import com.hzgc.util.common.FileUtil;
 import org.apache.log4j.Logger;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
-public class MQShowImpl implements MQShow {
+public class MQShowImpl implements MQShow, Serializable {
     private static Logger LOG = Logger.getLogger(MQShowImpl.class);
-    private String zookeeperAddress;
-    private static final String path = "/mq_show";
     private ZookeeperClient zookeeperClient;
 
     public MQShowImpl() {
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
-            zookeeperAddress = properties.getProperty("zookeeperAddress");
-            zookeeperClient = new ZookeeperClient(10000, zookeeperAddress, path, false);
-        } catch (IOException e) {
-            LOG.error("zookeeperAddress no found in the \"rocketmq.properties\"");
-            e.printStackTrace();
-        }
-    }
-
-    public static String getPath() {
-        return path;
-    }
-
-    /**
-     * 创建MQ演示功能节点
-     */
-    public void createMQShowZnode() {
-        zookeeperClient.create();
+        zookeeperClient = new ZookeeperClient(ZookeeperParam.SESSION_TIMEOUT,
+                ZookeeperParam.zookeeperAddress, ZookeeperParam.PATH_MQSHOW, ZookeeperParam.WATCHER);
     }
 
     /**
@@ -48,7 +28,7 @@ public class MQShowImpl implements MQShow {
     @Override
     public void openMQShow(String userId, long time, List<String> ipcIdList) {
         if (!userId.equals("") && !ipcIdList.isEmpty()) {
-            String childPath = path + "/" + userId;
+            String childPath = ZookeeperParam.PATH_MQSHOW + "/" + userId;
             StringBuilder data = new StringBuilder();
             data.append(userId).append(",").append(time).append(",");
             for (String ipcId : ipcIdList) {
@@ -66,7 +46,7 @@ public class MQShowImpl implements MQShow {
     @Override
     public void closeMQShow(String userId) {
         if (!userId.equals("")) {
-            zookeeperClient.delete(path + "/" + userId);
+            zookeeperClient.delete(ZookeeperParam.PATH_MQSHOW + "/" + userId);
         }
     }
 
@@ -78,12 +58,12 @@ public class MQShowImpl implements MQShow {
     @Override
     public List<String> getIpcId() {
         List<String> ipcIdList = new ArrayList<>();
-        MQShowClient mqShowClient = new MQShowClient(1000, zookeeperAddress, path, false);
-        mqShowClient.createConnection(zookeeperAddress, 10000);
+        MQShowClient mqShowClient = new MQShowClient(ZookeeperParam.SESSION_TIMEOUT, ZookeeperParam.zookeeperAddress, ZookeeperParam.PATH_MQSHOW, false);
+        mqShowClient.createConnection(ZookeeperParam.zookeeperAddress, ZookeeperParam.SESSION_TIMEOUT);
         List<String> children = mqShowClient.getChildren();
         if (!children.isEmpty()) {
             for (String child : children) {
-                String childPath = path + "/" + child;
+                String childPath = ZookeeperParam.PATH_MQSHOW + "/" + child;
                 byte[] data = mqShowClient.getDate(childPath);
                 if (data != null) {
                     String ipcIds = new String(data);

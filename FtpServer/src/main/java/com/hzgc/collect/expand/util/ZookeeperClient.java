@@ -4,10 +4,11 @@ import org.apache.log4j.Logger;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
-public class ZookeeperClient {
+public class ZookeeperClient implements Serializable {
     private static Logger LOG = Logger.getLogger(ZookeeperClient.class);
     //session失效时间
     private int session_timeout;

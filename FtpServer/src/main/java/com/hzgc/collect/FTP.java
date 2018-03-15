@@ -1,9 +1,6 @@
 package com.hzgc.collect;
 
-import com.hzgc.collect.expand.captureSubscription.MQShowImpl;
-import com.hzgc.collect.expand.captureSubscription.MQStart;
-import com.hzgc.collect.expand.captureSubscription.MQSubscriptionImpl;
-import com.hzgc.collect.expand.captureSubscription.MQSwitchObject;
+import com.hzgc.collect.expand.subscribe.*;
 import com.hzgc.collect.expand.conf.CommonConf;
 import com.hzgc.collect.expand.merge.RecoverNotProData;
 import com.hzgc.collect.expand.merge.ScheRecoErrData;
@@ -38,12 +35,12 @@ public class FTP extends ClusterOverFtp {
     static {
         new LoggerConfig();
         HelperFactory.regist();
-        MQSubscriptionImpl mqSubscription = new MQSubscriptionImpl();
+        MQSubscriptionClient mqSubscription = new MQSubscriptionClient(ZookeeperParam.SESSION_TIMEOUT,ZookeeperParam.zookeeperAddress,ZookeeperParam.PATH_SUBSCRIBE,ZookeeperParam.WATCHER);
         mqSubscription.createMQSubscriptionZnode();
-        MQShowImpl mqShow = new MQShowImpl();
+        MQShowClient mqShow = new MQShowClient(ZookeeperParam.SESSION_TIMEOUT,ZookeeperParam.zookeeperAddress,ZookeeperParam.PATH_MQSHOW,ZookeeperParam.WATCHER);
         mqShow.createMQShowZnode();
-        MQSwitchObject mqSwitch = new MQSwitchObject();
-        mqSwitch.getMqSwitchClient().createMQSwitchZnode();
+        MQSwitchClient mqSwitch = new MQSwitchClient(ZookeeperParam.SESSION_TIMEOUT,ZookeeperParam.zookeeperAddress,ZookeeperParam.PATH_SWITCH,ZookeeperParam.WATCHER);
+        mqSwitch.createMQSwitchZnode();
     }
 
     //expand模块的公共Conf对象

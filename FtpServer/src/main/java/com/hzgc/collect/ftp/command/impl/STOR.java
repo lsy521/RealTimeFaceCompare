@@ -1,7 +1,7 @@
 package com.hzgc.collect.ftp.command.impl;
 
-import com.hzgc.collect.expand.captureSubscription.CaptureSubscriptionObject;
-import com.hzgc.collect.expand.captureSubscription.MQSwitchObject;
+import com.hzgc.collect.expand.subscribe.CaptureSubscriptionObject;
+import com.hzgc.collect.expand.subscribe.MQSwitchObject;
 import com.hzgc.collect.expand.log.LogEvent;
 import com.hzgc.collect.expand.processer.FtpPathMessage;
 import com.hzgc.collect.expand.processer.RocketMQProducer;

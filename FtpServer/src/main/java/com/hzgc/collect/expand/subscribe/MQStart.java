@@ -1,36 +1,24 @@
-package com.hzgc.collect.expand.captureSubscription;
+package com.hzgc.collect.expand.subscribe;
 
-import com.hzgc.util.common.FileUtil;
 import org.apache.log4j.Logger;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * 人脸抓拍订阅功能及人脸抓拍演示功能定时刷新及去除过期数据
  */
-public class MQStart extends CaptureSubscriptionObject {
+public class MQStart extends CaptureSubscriptionObject implements Serializable {
     private static Logger LOG = Logger.getLogger(MQStart.class);
     private MQSubscriptionClient mqSubscriptionClient;
-    private String mqSubscription_path = MQSubscriptionImpl.getPath();
     private MQShowClient mqShowClient;
-    private String mqShow_path = MQShowImpl.getPath();
     private CaptureSubscriptionObject object = CaptureSubscriptionObject.getInstance();
 
     public MQStart() {
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(FileUtil.loadResourceFile("rocketmq.properties")));
-            String zookeeperAddress = properties.getProperty("zookeeperAddress");
-            mqSubscriptionClient = new MQSubscriptionClient(10000, zookeeperAddress, mqSubscription_path, false);
-            mqSubscriptionClient.createConnection(zookeeperAddress, 10000);
-            mqShowClient = new MQShowClient(10000, zookeeperAddress, mqShow_path, false);
-            mqShowClient.createConnection(zookeeperAddress, 10000);
-        } catch (IOException e) {
-            LOG.error("zookeeperAddress no found in the \"rocketmq.properties\"");
-            e.printStackTrace();
-        }
+        mqSubscriptionClient = new MQSubscriptionClient(ZookeeperParam.SESSION_TIMEOUT, ZookeeperParam.zookeeperAddress, ZookeeperParam.PATH_SUBSCRIBE, ZookeeperParam.WATCHER);
+        mqSubscriptionClient.createConnection(ZookeeperParam.zookeeperAddress, ZookeeperParam.SESSION_TIMEOUT);
+        mqShowClient = new MQShowClient(ZookeeperParam.SESSION_TIMEOUT, ZookeeperParam.zookeeperAddress, ZookeeperParam.PATH_MQSHOW, ZookeeperParam.WATCHER);
+        mqShowClient.createConnection(ZookeeperParam.zookeeperAddress, ZookeeperParam.SESSION_TIMEOUT);
     }
 
     private boolean isInDate(String time) {
@@ -66,7 +54,7 @@ public class MQStart extends CaptureSubscriptionObject {
         Thread thread = new Thread() {
             public void run() {
                 while (true) {
-                    if (!isClose()){
+                    if (!isClose()) {
                         MQSwitchObject.getInstance().setShow(true);
                         if (!isShow()) {
                             captureSubscription = mqSubscriptionClient.getData();
@@ -75,7 +63,7 @@ public class MQStart extends CaptureSubscriptionObject {
                                 Map<String, List<String>> map = captureSubscription.get(userId);
                                 for (String time : map.keySet()) {
                                     if (isInDate(time)) {
-                                        mqSubscriptionClient.delete(mqSubscription_path + "/" + userId);
+                                        mqSubscriptionClient.delete(ZookeeperParam.PATH_SUBSCRIBE + "/" + userId);
                                     }
                                 }
                             }
@@ -87,13 +75,13 @@ public class MQStart extends CaptureSubscriptionObject {
                                 Map<String, List<String>> map = captureSubscription.get(userId);
                                 for (String time : map.keySet()) {
                                     if (isInDate(time)) {
-                                        mqShowClient.delete(mqShow_path + "/" + userId);
+                                        mqShowClient.delete(ZookeeperParam.PATH_MQSHOW + "/" + userId);
                                     }
                                 }
                             }
                             LOG.info("OpenShow = true, ipcIdList:" + object.getIpcIdList());
                         }
-                    }else if (isClose()) {
+                    } else if (isClose()) {
                         MQSwitchObject.getInstance().setShow(false);
                         LOG.info("Close MQ switch");
                     }

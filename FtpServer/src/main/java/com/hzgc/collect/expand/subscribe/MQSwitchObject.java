@@ -7,13 +7,13 @@ import java.io.Serializable;
  */
 public class MQSwitchObject implements Serializable {
     private MQSwitchClient mqSwitchClient;
-    private boolean show;
+    private boolean mqSwitch;
     private static MQSwitchObject instance = null;
 
     private MQSwitchObject() {
         mqSwitchClient = new MQSwitchClient(ZookeeperParam.SESSION_TIMEOUT, ZookeeperParam.zookeeperAddress, ZookeeperParam.PATH_SWITCH, ZookeeperParam.WATCHER);
         mqSwitchClient.createConnection(ZookeeperParam.zookeeperAddress, ZookeeperParam.SESSION_TIMEOUT);
-        show = false;
+        mqSwitch = false;
     }
 
     public static MQSwitchObject getInstance() {
@@ -27,12 +27,12 @@ public class MQSwitchObject implements Serializable {
         return instance;
     }
 
-    public boolean isShow() {
-        return show;
+    public boolean isMqSwitch() {
+        return mqSwitch;
     }
 
-    public void setShow(boolean show) {
-        mqSwitchClient.setData(show);
-        this.show = show;
+    public void setMqSwitch(boolean mqSwitch) {
+        mqSwitchClient.setData(mqSwitch);
+        this.mqSwitch = mqSwitch;
     }
 }

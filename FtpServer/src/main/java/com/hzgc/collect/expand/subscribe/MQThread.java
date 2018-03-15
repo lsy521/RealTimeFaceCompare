@@ -55,7 +55,7 @@ public class MQThread extends SubscriptionObject implements Serializable {
             public void run() {
                 while (true) {
                     if (!isClose()) {
-                        MQSwitchObject.getInstance().setShow(true);
+                        MQSwitchObject.getInstance().setMqSwitch(true);
                         if (!isShow()) {
                             captureSubscription = mqSubscriptionClient.getData();
                             object.setIpcIdList(captureSubscription);
@@ -82,7 +82,7 @@ public class MQThread extends SubscriptionObject implements Serializable {
                             LOG.info("OpenShow = true, ipcIdList:" + object.getIpcIdList());
                         }
                     } else if (isClose()) {
-                        MQSwitchObject.getInstance().setShow(false);
+                        MQSwitchObject.getInstance().setMqSwitch(false);
                         LOG.info("Close MQ switch");
                     }
                     try {

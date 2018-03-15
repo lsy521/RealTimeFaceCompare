@@ -149,12 +149,12 @@ public class STOR extends AbstractCommand {
                     if (fileName.contains(".jpg") && faceNum > 0) {
                         FtpPathMessage message = FtpUtils.getFtpPathMessage(fileName);
                         if (FtpSwitchObject.isFtpSwitch()){
-                            if (MQSwitchObject.getInstance().isShow()) {
+                            if (MQSwitchObject.getInstance().isMqSwitch()) {
                                 List<String> ipcIdList = SubscriptionObject.getInstance().getIpcIdList();
                                 if (!ipcIdList.isEmpty() && ipcIdList.contains(message.getIpcid())) {
                                     sendMQAndWriteLogEvent(fileName, file, message, context);
                                 }
-                            } else if (!MQSwitchObject.getInstance().isShow()) {
+                            } else if (!MQSwitchObject.getInstance().isMqSwitch()) {
                                 sendMQAndWriteLogEvent(fileName, file, message, context);
                             }
                         }else if (!FtpSwitchObject.isFtpSwitch()){

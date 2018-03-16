@@ -106,7 +106,9 @@ public class ZookeeperClient implements Serializable {
         this.createConnection(zookeeperAddress, session_timeout);
         try {
             zooKeeper.delete(path, -1);
+            LOG.info("Delete Znode successful! path \":" + path + "\"");
         } catch (InterruptedException | KeeperException e) {
+            LOG.error("Delete Znode failed! path \":" + path + "\"");
             e.printStackTrace();
         } finally {
             zookeeperClose();

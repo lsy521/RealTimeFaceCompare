@@ -1,6 +1,7 @@
 package com.hzgc.collect.expand.subscribe;
 
 import com.hzgc.collect.expand.util.ZookeeperClient;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -9,7 +10,7 @@ import java.util.List;
  * 删除ZK中“/mq_subscribe”与“mq_show”节点数据
  */
 public class DeleteDataFromZookeeper extends ZookeeperClient {
-
+    private static Logger LOG = Logger.getLogger(DeleteDataFromZookeeper.class);
     public DeleteDataFromZookeeper(int session_timeout, String zookeeperAddress, String path, boolean watcher) {
         super(session_timeout, zookeeperAddress, path, watcher);
     }
@@ -21,6 +22,7 @@ public class DeleteDataFromZookeeper extends ZookeeperClient {
         if (!children.isEmpty()) {
             for (String childrenPath : children) {
                 delete.delete(path + "/" + childrenPath);
+                LOG.info("Delete Znode successful! path :" + path + "/" + childrenPath);
             }
         }
     }

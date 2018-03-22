@@ -21,13 +21,13 @@ public class MQSubscriptionImpl implements MQSubscription, Serializable {
      * 打开MQ接收数据
      *
      * @param userId    用户ID
-     * @param time      时间戳
      * @param ipcIdList 设备ID列表
      */
     @Override
-    public void openMQReception(String userId, long time, List<String> ipcIdList) {
+    public void openMQReception(String userId, List<String> ipcIdList) {
         if (!userId.equals("") && !ipcIdList.isEmpty()) {
             String childPath = ZookeeperParam.PATH_SUBSCRIBE + "/" + userId;
+            long time = System.currentTimeMillis();
             StringBuilder data = new StringBuilder();
             data.append(userId).append(",").append(time).append(",");
             for (String ipcId : ipcIdList) {

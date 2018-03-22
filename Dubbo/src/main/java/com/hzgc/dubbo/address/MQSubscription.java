@@ -10,10 +10,9 @@ public interface MQSubscription {
      * 打开MQ接收数据
      *
      * @param userId    用户ID
-     * @param time      时间戳
      * @param ipcIdList 设备ID列表
      */
-    void openMQReception(String userId, long time, List<String> ipcIdList);
+    void openMQReception(String userId, List<String> ipcIdList);
 
     /**
      * 关闭MQ接收数据

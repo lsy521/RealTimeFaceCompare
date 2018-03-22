@@ -22,13 +22,13 @@ public class MQShowImpl implements MQShow, Serializable {
      * 打开MQ演示功能
      *
      * @param userId
-     * @param time
      * @param ipcIdList 设备列表
      */
     @Override
-    public void openMQShow(String userId, long time, List<String> ipcIdList) {
+    public void openMQShow(String userId, List<String> ipcIdList) {
         if (!userId.equals("") && !ipcIdList.isEmpty()) {
             String childPath = ZookeeperParam.PATH_MQSHOW + "/" + userId;
+            long time = System.currentTimeMillis();
             StringBuilder data = new StringBuilder();
             data.append(userId).append(",").append(time).append(",");
             for (String ipcId : ipcIdList) {

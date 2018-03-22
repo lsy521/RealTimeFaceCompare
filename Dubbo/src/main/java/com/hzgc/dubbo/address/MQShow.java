@@ -11,7 +11,7 @@ public interface MQShow {
      *
      * @param ipcIdList 设备列表
      */
-    public void openMQShow(String userId, long time, List<String> ipcIdList);
+    public void openMQShow(String userId, List<String> ipcIdList);
 
     /**
      * 关闭MQ演示功能

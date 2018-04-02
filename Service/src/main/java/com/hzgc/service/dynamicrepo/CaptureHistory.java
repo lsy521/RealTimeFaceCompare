@@ -72,17 +72,19 @@ class CaptureHistory {
             //人脸属性
             List<Attribute> attributes = option.getAttributes();
             //筛选人脸属性
-            if (attributes != null) {
+            if (attributes != null && attributes.size() > 0) {
                 for (Attribute attribute : attributes) {
                     String identify = attribute.getIdentify().toLowerCase();
                     String logic = String.valueOf(attribute.getLogistic());
                     List<AttributeValue> attributeValues = attribute.getValues();
                     for (AttributeValue attributeValue : attributeValues) {
                         int attr = attributeValue.getValue();
-                        if (logic.equals("OR")) {
-                            totalBQ.should(QueryBuilders.matchQuery(identify, attr).analyzer("standard"));
-                        } else {
-                            totalBQ.must(QueryBuilders.matchQuery(identify, attr).analyzer("standard"));
+                        if (attr != 0) {
+                            if (logic.equals("OR")) {
+                                totalBQ.should(QueryBuilders.matchQuery(identify, attr).analyzer("standard"));
+                            } else {
+                                totalBQ.must(QueryBuilders.matchQuery(identify, attr).analyzer("standard"));
+                            }
                         }
                     }
                 }
@@ -177,17 +179,19 @@ class CaptureHistory {
                 }
                 List<Attribute> attributes = option.getAttributes();
                 //筛选人脸属性
-                if (attributes != null) {
+                if (attributes != null && attributes.size() > 0) {
                     for (Attribute attribute : attributes) {
                         String identify = attribute.getIdentify().toLowerCase();
                         String logic = String.valueOf(attribute.getLogistic());
                         List<AttributeValue> attributeValues = attribute.getValues();
                         for (AttributeValue attributeValue : attributeValues) {
                             int attr = attributeValue.getValue();
-                            if (logic.equals("OR")) {
-                                totalBQ.should(QueryBuilders.matchQuery(identify, attr).analyzer("standard"));
-                            } else {
-                                totalBQ.must(QueryBuilders.matchQuery(identify, attr).analyzer("standard"));
+                            if (attr != 0) {
+                                if (logic.equals("OR")) {
+                                    totalBQ.should(QueryBuilders.matchQuery(identify, attr).analyzer("standard"));
+                                } else {
+                                    totalBQ.must(QueryBuilders.matchQuery(identify, attr).analyzer("standard"));
+                                }
                             }
                         }
                     }
@@ -206,7 +210,7 @@ class CaptureHistory {
                         .setFrom(offset)
                         .setSize(count)
                         .addSort("exacttime", SortOrder.fromString(px));
-                SearchResponse searchResponseCount =  requestBuilder.get();
+                SearchResponse searchResponseCount = requestBuilder.get();
                 SearchHits searchHitsCount = searchResponseCount.getHits();
                 int totolCount = (int) searchHitsCount.getTotalHits();
                 SearchResult result = new SearchResult();
@@ -219,6 +223,8 @@ class CaptureHistory {
                 SearchHit[] hits = searchHits.getHits();
                 List<CapturedPicture> persons = new ArrayList<>();
                 CapturedPicture capturePicture;
+                groupByIpc.setIpc(ipcid);
+                picturesByIpc.add(groupByIpc);
                 if (hits.length > 0) {
                     for (SearchHit hit : hits) {
                         capturePicture = new CapturedPicture();
@@ -231,11 +237,12 @@ class CaptureHistory {
                         capturePicture.setIpcId(ipc);
                         capturePicture.setTimeStamp(timestamp);
                         if (ipcid.equals(ipc)) {
-                            groupByIpc.setIpc(ipc);
-                            picturesByIpc.add(groupByIpc);
                             persons.add(capturePicture);
                         }
                     }
+                }else {
+                    capturePicture = new CapturedPicture();
+                    persons.add(capturePicture);
                 }
                 singleResult.setTotal(totolCount);
                 singleResult.setPicturesByIpc(picturesByIpc);

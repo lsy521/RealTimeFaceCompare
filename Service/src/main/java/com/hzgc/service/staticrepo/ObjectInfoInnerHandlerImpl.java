@@ -8,10 +8,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Array;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -21,8 +18,6 @@ public class ObjectInfoInnerHandlerImpl implements Serializable {
     private static ObjectInfoInnerHandlerImpl instance;
     private static long totalNums = getTotalNums();
     private static List<Object[]> totalList = null;
-    private static java.sql.Connection conn = PhoenixJDBCHelper.getPhoenixJdbcConn();
-
 
     /**
      * 接口实现使用单例模式
@@ -116,8 +111,9 @@ public class ObjectInfoInnerHandlerImpl implements Serializable {
                 ", " + ObjectInfoTable.FEATURE + " from " + ObjectInfoTable.TABLE_NAME;
         PreparedStatement pstm = null;
         List<Object[]> findResult = new ArrayList<>();
-
+        java.sql.Connection conn = null;
         try {
+            conn = PhoenixJDBCHelper.getInstance().getConnection();
             pstm = conn.prepareStatement(sql);
             ResultSet resultSet = pstm.executeQuery();
             while (resultSet.next()) {
@@ -185,7 +181,9 @@ public class ObjectInfoInnerHandlerImpl implements Serializable {
         sql = sql + pkeysWhere;
 
         PreparedStatement pstm = null;
+        java.sql.Connection conn = null;
         try {
+            conn = PhoenixJDBCHelper.getInstance().getConnection();
             pstm = conn.prepareStatement(sql);
             for(int i = 0; i< pkeys.size(); i++) {
                 pstm.setString(i + 1, pkeys.get(i));
@@ -227,17 +225,21 @@ public class ObjectInfoInnerHandlerImpl implements Serializable {
                  ") values(?,?)";
 
         PreparedStatement pstm = null;
+        java.sql.Connection conn = null;
         try {
+            conn = PhoenixJDBCHelper.getInstance().getConnection();
             pstm = conn.prepareStatement(sql);
             java.sql.Timestamp timeStamp = new java.sql.Timestamp(System.currentTimeMillis());
             for (int i = 0;i < rowkeys.size(); i++) {
                 pstm.setString(1, rowkeys.get(i));
                 pstm.setTimestamp(2, timeStamp);
-                pstm.executeUpdate();
-                if (i % 200 == 0) {
+                pstm.addBatch();
+                if (i % 500 == 0) {
+                    pstm.executeBatch();
                     conn.commit();
                 }
             }
+            pstm.executeBatch();
             conn.commit();
         } catch (SQLException e) {
             e.printStackTrace();
